@@ -666,7 +666,7 @@
                 const tbodyProd = document.getElementById('admin-tempat-produk');
                 tbodyProd.innerHTML = '';
                 products.forEach(p => {
-                    const linkGambar = p.gambar ? (p.gambar.startsWith('/') ? p.gambar : '/' + p.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
+                    const linkGambar = p.gambar ? (p.gambar.startsWith('http') || p.gambar.startsWith('/') ? p.gambar : '/' + p.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
                     tbodyProd.innerHTML += `
                         <tr class="hover:bg-surface transition-colors">
                             <td class="p-4"><img src="${linkGambar}" class="w-12 h-12 rounded object-cover border border-outline-variant" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop'"></td>
@@ -957,7 +957,7 @@
                 // Gambar
                 const previewBox = document.getElementById('edit-preview-box');
                 if (game.gambar) {
-                    const linkGambar = game.gambar.startsWith('/') ? game.gambar : '/' + game.gambar;
+                    const linkGambar = game.gambar.startsWith('http') || game.gambar.startsWith('/') ? game.gambar : '/' + game.gambar;
                     previewBox.style.backgroundImage = `url('${linkGambar}')`;
                     previewBox.style.backgroundSize = 'cover';
                     previewBox.style.backgroundPosition = 'center';

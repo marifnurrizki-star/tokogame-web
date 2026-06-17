@@ -242,7 +242,7 @@
                 const listEl = document.getElementById('order-items-list');
                 listEl.innerHTML = '';
                 orderItems.forEach(item => {
-                    const img = item.gambar ? (item.gambar.startsWith('/') ? item.gambar : '/' + item.gambar) : '';
+                    const img = item.gambar ? (item.gambar.startsWith('http') || item.gambar.startsWith('/') ? item.gambar : '/' + item.gambar) : '';
                     listEl.innerHTML += `
                         <div class="flex justify-between items-center py-2 border-b border-outline-variant">
                             <div class="flex gap-4 items-center">

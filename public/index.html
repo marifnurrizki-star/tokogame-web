@@ -227,7 +227,7 @@
 
             // Cetak kartunya
             produkSekarang.forEach(p => {
-                const linkGambar = p.gambar ? (p.gambar.startsWith('/') ? p.gambar : '/' + p.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
+                const linkGambar = p.gambar ? (p.gambar.startsWith('http') || p.gambar.startsWith('/') ? p.gambar : '/' + p.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
                 const hargaRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(p.harga);
                 
                 // Cek apakah game ini ada di wishlist

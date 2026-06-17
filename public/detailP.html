@@ -194,7 +194,7 @@
                 document.getElementById('detail-desc').innerHTML = `<p>${formattedDesc}</p>`;
                 
                 // Inject Gambar
-                const linkGambar = product.gambar ? (product.gambar.startsWith('/') ? product.gambar : '/' + product.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
+                const linkGambar = product.gambar ? (product.gambar.startsWith('http') || product.gambar.startsWith('/') ? product.gambar : '/' + product.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
                 document.getElementById('detail-image').src = linkGambar;
 
                 // Fungsi Klik Add to Cart

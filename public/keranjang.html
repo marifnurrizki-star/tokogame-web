@@ -199,7 +199,7 @@
                 const hargaRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(item.harga);
                 const subtotalRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(item.harga * item.jumlah);
                 
-                const linkGambar = item.gambar ? (item.gambar.startsWith('/') ? item.gambar : '/' + item.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
+                const linkGambar = item.gambar ? (item.gambar.startsWith('http') || item.gambar.startsWith('/') ? item.gambar : '/' + item.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
                 
                 wadah.innerHTML += `
                     <div class="cyber-item rounded-lg p-4 flex gap-4">
