@@ -22,5 +22,10 @@
     "multer-storage-cloudinary": "^4.0.0",
     "helmet": "^7.1.0",
     "cors": "^2.8.5"
+  },
+  "overrides": {
+    "multer-storage-cloudinary": {
+      "cloudinary": "$cloudinary"
+    }
   }
 }
