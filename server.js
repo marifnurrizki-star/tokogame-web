@@ -484,7 +484,9 @@ app.post('/api/forgot-password', async (req, res) => {
 
         await pool.query('UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE email = $3', [token, expires, email]);
 
-        const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+        const host = req.headers.host;
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+        const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
         const resetLink = `${baseUrl}/reset-password.html?token=${token}`;
 
         const mailOptions = {
