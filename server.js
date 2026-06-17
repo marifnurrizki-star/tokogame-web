@@ -18,9 +18,9 @@ const port = process.env.PORT || 3000;
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key_change_this';
 
-app.use(helmet({
-  contentSecurityPolicy: false,
-}));
+// app.use(helmet({
+//   contentSecurityPolicy: false,
+// }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
