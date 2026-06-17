@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>NEO-STORE | Katalog Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body { background-color: #0a0a0b; color: #e5e2e3; font-family: 'Space Grotesk', sans-serif; background-image: radial-gradient(circle at 2px 2px, rgba(0, 212, 255, 0.03) 1px, transparent 0); background-size: 24px 24px; }
+        .glass-nav { background: rgba(10, 10, 11, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .cyber-card { background: #131314; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .cyber-card:hover { border-color: #00d4ff; box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); transform: translateY(-5px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .icon-filled { font-variation-settings: 'FILL' 1 !important; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
+    <nav class="sticky top-0 z-50 glass-nav h-20 shadow-[0_0_15px_rgba(0,212,255,0.1)]">
+        <div class="h-full max-w-[1280px] mx-auto px-6 flex justify-between items-center">
+            <div class="flex flex-col">
+                <a href="/index.html" class="text-2xl font-bold text-[#00d4ff] tracking-tighter leading-none">NEO-STORE</a>
+                <span id="user-greeting" class="text-xs text-gray-400 mt-1 hidden">Hi, <span id="user-name-display" class="text-white font-bold"></span></span>
+            </div>
+            <div class="flex items-center gap-6">
+                <button class="text-gray-400 hover:text-[#00d4ff] transition relative" onclick="cekRiwayat()" title="Riwayat Pesanan">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                </button>
+                <button onclick="lihatWishlist()" class="text-gray-400 hover:text-[#ecb1ff] transition relative" title="Wishlist">
+                    <span class="material-symbols-outlined">favorite</span>
+                    <span id="badge-wishlist" class="absolute -top-1 -right-2 bg-[#ecb1ff] text-[#480063] text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                </button>
+                <button class="text-gray-400 hover:text-[#00d4ff] transition relative" onclick="cekKeranjang()" title="Keranjang">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                </button>
+                <button id="btn-login" class="px-4 py-2 bg-[#00d4ff]/10 text-[#00d4ff] border border-[#00d4ff]/50 rounded hover:bg-[#00d4ff] hover:text-black transition-colors text-sm font-bold tracking-wider" onclick="bukaLogin()">LOGIN</button>
+                <button id="btn-setting" class="hidden text-gray-400 hover:text-[#00d4ff] transition relative" onclick="window.location.href='/setting.html'" title="Pengaturan Akun">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                </button>
+                <button id="btn-logout" class="hidden px-4 py-2 border border-red-500/50 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors text-sm font-bold tracking-wider" onclick="logoutUser()">LOGOUT</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-[1280px] mx-auto px-6 py-10">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2 uppercase tracking-wide">Katalog Game</h1>
+                <p class="text-gray-400">Pilih dan tambahkan game ke koleksi Anda.</p>
+            </div>
+            
+            <div class="flex items-center bg-[#18181b] border border-gray-700 rounded-lg p-2 w-full md:w-80 focus-within:border-[#00d4ff] focus-within:shadow-[0_0_10px_rgba(0,212,255,0.2)] transition-all">
+                <span class="material-symbols-outlined text-gray-500 mx-2">search</span>
+                <input type="text" id="searchInput" placeholder="Search..." class="bg-transparent text-white w-full outline-none font-mono text-sm" onkeyup="handleSearch()">
+            </div>
+        </div>
+
+        <!-- Filter Platform -->
+        <div class="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide" id="filter-container">
+            <button onclick="filterPlatform('Semua')" class="filter-btn px-4 py-2 bg-[#00d4ff] text-black rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">Semua</button>
+            <button onclick="filterPlatform('PS5')" class="filter-btn px-4 py-2 bg-gray-800 text-gray-400 hover:text-white rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">PS5</button>
+            <button onclick="filterPlatform('PS4')" class="filter-btn px-4 py-2 bg-gray-800 text-gray-400 hover:text-white rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">PS4</button>
+            <button onclick="filterPlatform('Xbox')" class="filter-btn px-4 py-2 bg-gray-800 text-gray-400 hover:text-white rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">Xbox</button>
+            <button onclick="filterPlatform('Nintendo')" class="filter-btn px-4 py-2 bg-gray-800 text-gray-400 hover:text-white rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">Nintendo</button>
+        </div>
+
+        <div id="tempat-katalog" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <p class="text-gray-500 text-sm animate-pulse">Menyambungkan ke database server...</p>
+        </div>
+
+        <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center">
+            <div class="text-gray-600 mb-6 bg-gray-900/50 p-6 rounded-full border border-gray-800">
+                <span class="material-symbols-outlined" style="font-size: 64px;">search_off</span>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2 uppercase tracking-widest font-mono">System Error: Parameter Not Found</h2>
+            <p class="text-gray-400 mb-8 max-w-md">Pencarian gagal. Tidak ada produk yang cocok dengan pencarian Anda.</p>
+            <button onclick="clearSearch()" class="px-8 py-3 bg-transparent border border-[#00d4ff] text-[#00d4ff] hover:bg-[#00d4ff] hover:text-black transition-all rounded uppercase font-bold text-sm tracking-wider shadow-[0_0_15px_rgba(0,212,255,0.1)]">Clear Filters</button>
+        </div>
+
+        <div id="pagination-controls" class="flex justify-center items-center gap-4 mt-12 hidden">
+            <button onclick="gantiHalaman(-1)" id="btn-prev" class="px-4 py-2 border border-gray-700 text-gray-400 hover:text-white hover:border-white transition-colors rounded disabled:opacity-30 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <span id="page-info" class="text-white font-mono text-sm tracking-widest">PAGE 1 / 1</span>
+            <button onclick="gantiHalaman(1)" id="btn-next" class="px-4 py-2 border border-gray-700 text-gray-400 hover:text-white hover:border-white transition-colors rounded disabled:opacity-30 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="bg-[#131314] border-t border-white/10 py-8 mt-auto">
+        <div class="max-w-[1280px] mx-auto px-6 flex justify-between items-center">
+            <div class="text-gray-400 text-sm"><span class="font-bold text-white mr-2">NEO-STORE</span> | Cyberpunk Gaming Hub</div>
+            <div class="text-gray-500 text-xs font-bold tracking-widest">© 2026 NEO-STORE.</div>
+        </div>
+    </footer>
+
+
+
+    <script>
+        // --- MESIN TOAST CYBERPUNK ---
+        function showNotif(pesan, tipe = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const isSuccess = tipe === 'success';
+            const isInfo = tipe === 'info';
+            
+            let borderColor = 'border-[#00d4ff]';
+            let bgColor = 'bg-[#00d4ff]/10';
+            let icon = 'check_circle';
+            let iconColor = 'text-[#00d4ff]';
+            let shadow = 'shadow-[0_0_15px_rgba(0,212,255,0.2)]';
+
+            if (tipe === 'error') {
+                borderColor = 'border-red-500'; bgColor = 'bg-red-500/10'; icon = 'warning'; iconColor = 'text-red-500'; shadow = 'shadow-[0_0_15px_rgba(239,68,68,0.2)]';
+            } else if (tipe === 'wishlist') {
+                borderColor = 'border-[#ecb1ff]'; bgColor = 'bg-[#ecb1ff]/10'; icon = 'favorite'; iconColor = 'text-[#ecb1ff]'; shadow = 'shadow-[0_0_15px_rgba(236,177,255,0.2)]';
+            }
+
+            toast.className = `flex items-center gap-4 bg-[#111113] border ${borderColor} ${bgColor} p-4 rounded-lg ${shadow} transform transition-all duration-300 translate-x-[120%] opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<span class="material-symbols-outlined ${iconColor} text-2xl">${icon}</span><p class="text-white text-sm font-bold tracking-wide">${pesan}</p>`;
+            container.appendChild(toast);
+
+            setTimeout(() => { toast.classList.remove('translate-x-[120%]', 'opacity-0'); toast.classList.add('translate-x-0', 'opacity-100'); }, 10);
+            setTimeout(() => { toast.classList.remove('translate-x-0', 'opacity-100'); toast.classList.add('translate-x-[120%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // --- GLOBAL STATE ---
+        let allProducts = []; 
+        let filteredProducts = []; 
+        let currentPage = 1;
+        const itemsPerPage = 8; 
+        
+        let wishlist = []; 
+        let currentPlatform = 'Semua';
+
+        // --- INIT AWAL (CCTV & FETCH) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const userData = localStorage.getItem('userTokoGame');
+            if (userData) {
+                const user = JSON.parse(userData);
+                if (user.role === 'admin') {
+                    window.location.replace('/admin.html');
+                    return; 
+                }
+                document.getElementById('btn-login').classList.add('hidden');
+                document.getElementById('btn-logout').classList.remove('hidden');
+                document.getElementById('btn-setting').classList.remove('hidden');
+                document.getElementById('user-greeting').classList.remove('hidden');
+                document.getElementById('user-name-display').innerText = user.nama;
+                fetchWishlist();
+            }
+            
+            tarikDataServer();
+        });
+
+        async function fetchWishlist() {
+            const token = localStorage.getItem('tokenTokoGame');
+            if(!token) return;
+            try {
+                const res = await fetch('/api/wishlist', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if(res.ok) {
+                    wishlist = await res.json();
+                    updateWishlistBadge();
+                    renderKatalog();
+                }
+            } catch(e) {}
+        }
+
+        // --- FETCH DATA SEKALI AJA ---
+        async function tarikDataServer() {
+            try {
+                const res = await fetch('/api/products');
+                allProducts = await res.json();
+                filteredProducts = [...allProducts]; // Awalnya sama persis
+                renderKatalog();
+            } catch(err) {
+                document.getElementById('tempat-katalog').innerHTML = '<p class="text-red-500 col-span-full">Koneksi ke server gagal!</p>';
+            }
+        }
+
+        // --- MESIN RENDER & PAGINATION ---
+        function renderKatalog() {
+            const wadah = document.getElementById('tempat-katalog');
+            const emptyState = document.getElementById('empty-state');
+            const pagination = document.getElementById('pagination-controls');
+            wadah.innerHTML = '';
+
+            // Kalau hasil pencarian kosong (Trigger Desain Keren Lu)
+            if(filteredProducts.length === 0) {
+                wadah.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                pagination.classList.add('hidden');
+                return;
+            }
+
+            // Kalau ada isinya, tampilin Grid
+            wadah.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+            pagination.classList.remove('hidden');
+
+            // Hitung logika Pagination
+            const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+            // Jaga-jaga kalau nyasar ke halaman yang gak ada
+            if(currentPage > totalPages) currentPage = totalPages;
+            if(currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const produkSekarang = filteredProducts.slice(startIndex, endIndex);
+
+            // Update tulisan info pagination
+            document.getElementById('page-info').innerText = `PAGE ${currentPage} / ${totalPages}`;
+            document.getElementById('btn-prev').disabled = currentPage === 1;
+            document.getElementById('btn-next').disabled = currentPage === totalPages;
+
+            // Cetak kartunya
+            produkSekarang.forEach(p => {
+                const linkGambar = p.gambar ? (p.gambar.startsWith('/') ? p.gambar : '/' + p.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
+                const hargaRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(p.harga);
+                
+                // Cek apakah game ini ada di wishlist
+                const isLoved = wishlist.includes(p.id);
+                const heartClass = isLoved ? 'icon-filled text-[#ecb1ff]' : 'text-gray-400 group-hover/wish:text-[#ecb1ff]';
+
+                wadah.innerHTML += `
+                    <div class="cyber-card rounded-xl overflow-hidden flex flex-col relative group">
+                        <button onclick="toggleWishlist(${p.id}, event)" class="absolute top-3 right-3 z-20 bg-black/50 p-2 rounded-full backdrop-blur-sm border border-white/10 hover:border-[#ecb1ff] transition-colors group/wish">
+                            <span class="material-symbols-outlined text-[20px] transition-colors ${heartClass}">favorite</span>
+                        </button>
+
+                        <a href="/detailP.html?id=${p.id}" class="block group/link cursor-pointer">
+                            <div class="overflow-hidden">
+                                <img src="${linkGambar}" class="w-full h-48 object-cover border-b border-gray-800 transition-transform duration-500 group-hover/link:scale-110" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop'">
+                            </div>
+                            <div class="p-5 flex flex-col flex-grow">
+                                <span class="text-xs text-[#00d4ff] font-bold tracking-widest uppercase mb-1">${p.kategori || 'GAME'}</span>
+                                <h3 class="text-lg font-bold text-white leading-tight mb-2 group-hover/link:text-[#00d4ff] transition-colors">${p.nama_produk}</h3>
+                                <p class="text-xl text-white font-bold mb-4 mt-auto">${hargaRp}</p>
+                            </div>
+                        </a>
+                        <div class="px-5 pb-5 mt-auto">
+                            <button onclick="tambahKeKeranjang(${p.id})" class="w-full py-2 bg-white/5 hover:bg-[#00d4ff] hover:text-black text-[#00d4ff] border border-[#00d4ff]/30 rounded transition-colors font-bold text-sm uppercase flex items-center justify-center gap-2 z-10 relative">
+                                <span class="material-symbols-outlined text-[18px]">add_shopping_cart</span> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- FITUR SEARCH & FILTER ---
+        function applyFilters() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            filteredProducts = allProducts.filter(p => {
+                const matchKeyword = p.nama_produk.toLowerCase().includes(keyword);
+                const matchPlatform = currentPlatform === 'Semua' || (p.kategori && p.kategori.includes(currentPlatform));
+                return matchKeyword && matchPlatform;
+            });
+            currentPage = 1;
+            renderKatalog();
+        }
+
+        function handleSearch() {
+            applyFilters();
+        }
+
+        function filterPlatform(platform) {
+            currentPlatform = platform;
+            
+            // Update styling UI tombol
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if(btn.innerText.toLowerCase() === platform.toLowerCase()) {
+                    btn.className = 'filter-btn px-4 py-2 bg-[#00d4ff] text-black rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors';
+                } else {
+                    btn.className = 'filter-btn px-4 py-2 bg-gray-800 text-gray-400 hover:text-white rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors';
+                }
+            });
+            
+            applyFilters();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            handleSearch();
+        }
+
+        // --- FITUR PAGINATION BUTTONS ---
+        function gantiHalaman(arah) {
+            currentPage += arah;
+            renderKatalog();
+            // Otomatis scroll sedikit ke atas biar UX enak
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        // --- FITUR WISHLIST ---
+        async function toggleWishlist(id, event) {
+            event.stopPropagation();
+            const token = localStorage.getItem('tokenTokoGame');
+            if (!token) {
+                showNotif('Akses ditolak. Silakan masuk terlebih dahulu!', 'error');
+                bukaLogin();
+                return;
+            }
+            try {
+                const res = await fetch('/api/wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ product_id: id })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    if(data.isWishlisted) {
+                        wishlist.push(id);
+                        showNotif('Software diamankan ke Wishlist!', 'wishlist');
+                    } else {
+                        wishlist = wishlist.filter(w => w !== id);
+                        showNotif('Software dihapus dari Wishlist.', 'error');
+                    }
+                    updateWishlistBadge();
+                    renderKatalog();
+                } else if(res.status===401 || res.status===403) {
+                    logoutUser();
+                }
+            } catch(e) { showNotif('Gagal mengamankan ke wishlist', 'error'); }
+        }
+
+        function updateWishlistBadge() {
+            const badge = document.getElementById('badge-wishlist');
+            if(wishlist.length > 0) {
+                badge.innerText = wishlist.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function lihatWishlist() {
+            const token = localStorage.getItem('tokenTokoGame');
+            if (!token) {
+                showNotif('Silakan masuk terlebih dahulu untuk melihat wishlist!', 'error');
+                bukaLogin();
+                return;
+            }
+
+            if(wishlist.length === 0) {
+                showNotif('Wishlist Anda masih kosong!', 'error');
+                return;
+            }
+            
+            // Set tombol filter ke 'Semua' karena lagi buka wishlist campur
+            filterPlatform('Semua');
+            
+            filteredProducts = allProducts.filter(p => wishlist.includes(p.id));
+            currentPage = 1;
+            renderKatalog();
+            showNotif('Menampilkan arsip Wishlist lu.', 'wishlist');
+        }
+
+        // --- FUNGSI KERANJANG ---
+        async function tambahKeKeranjang(product_id) {
+            const token = localStorage.getItem('tokenTokoGame');
+            if (!token) {
+                showNotif('Akses ditolak. Silakan masuk terlebih dahulu!', 'error');
+                bukaLogin();
+                return;
+            }
+            try {
+                const res = await fetch('/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ product_id: product_id })
+                });
+                const data = await res.json();
+                if(data.success) showNotif('✅ Berhasil di-inject ke keranjang!', 'success');
+                else {
+                    showNotif('Gagal: ' + data.message, 'error');
+                    if(res.status === 401 || res.status === 403) logoutUser();
+                }
+            } catch(err) {
+                showNotif('Error server, gagal inject keranjang!', 'error');
+            }
+        }
+
+        function cekKeranjang() {
+            const userData = localStorage.getItem('userTokoGame');
+            if (!userData) {
+                showNotif('Silakan masuk terlebih dahulu!', 'error');
+                bukaLogin();
+            } else {
+                window.location.href = '/keranjang.html'; 
+            }
+        }
+
+        function cekRiwayat() {
+            const userData = localStorage.getItem('userTokoGame');
+            if (!userData) {
+                showNotif('Silakan masuk terlebih dahulu untuk memeriksa riwayat pesanan!', 'error');
+                bukaLogin();
+            } else {
+                window.location.href = '/riwayat.html'; 
+            }
+        }
+
+        // --- FUNGSI LOGIN / LOGOUT ---
+        function logoutUser() {
+            localStorage.removeItem('userTokoGame');
+            location.reload();
+        }
+        function bukaLogin() { window.location.href = '/login.html'; }
+    </script>
+</body>
+</html>

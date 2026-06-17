@@ -1,0 +1,352 @@
+<!DOCTYPE html><html class="dark" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>NEO-STORE | Order Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    .swal2-popup { background: #111113 !important; color: #dae2fd !important; border: 1px solid rgba(0, 212, 255, 0.3) !important; border-radius: 1rem !important; }
+    .swal2-title, .swal2-html-container { color: #fff !important; font-family: 'Space Grotesk', sans-serif !important; }
+    .swal2-confirm { background: #00d4ff !important; color: #000 !important; font-weight: bold !important; border-radius: 0.5rem !important; padding: 0.5rem 1.5rem !important; }
+    .swal2-cancel { background: #182033 !important; color: #fff !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 0.5rem !important; padding: 0.5rem 1.5rem !important; }
+</style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#00d4ff",
+                        "secondary-fixed-dim": "#d1bcff",
+                        "background": "#0b1326",
+                        "surface-container-high": "#222a3d",
+                        "on-background": "#dae2fd",
+                        "outline-variant": "#3c494e",
+                        "surface-variant": "#2d3449",
+                        "inverse-primary": "#00677e",
+                        "surface-container": "#171f33",
+                        "surface-container-highest": "#2d3449",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "on-surface": "#dae2fd",
+                        "surface": "#0b1326",
+                        "primary": "#a8e8ff",
+                        "outline": "#859398",
+                        "on-surface-variant": "#bbc9cf",
+                        "surface-container-lowest": "#060e20",
+                        "error": "#ffb4ab"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Space Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-lg": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-md": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-sm": ["10px", {"lineHeight": "1", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .circuit-border { position: relative; border: 1px solid #334155; }
+        .circuit-border::after { content: ''; position: absolute; top: -1px; left: -1px; width: 10px; height: 10px; border-top: 2px solid #00d4ff; border-left: 2px solid #00d4ff; }
+        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Main Content Area -->
+<main class="min-h-screen p-8 pb-20 max-w-7xl mx-auto">
+<div class="mb-4">
+    <a href="/admin.html" class="flex items-center gap-2 text-primary-container hover:text-white transition-colors">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Kembali ke Dashboard
+    </a>
+</div>
+<!-- Header -->
+<header class="flex items-center justify-between mb-8 border-b border-outline-variant pb-4">
+<h2 id="order-title" class="font-headline-lg text-headline-lg text-primary-container flex items-center gap-3">
+<span class="material-symbols-outlined text-4xl">assignment</span>
+                📋 Pesanan #ORD-...
+            </h2>
+<div id="order-status-badge" class="px-4 py-1 border border-primary-container/30 bg-primary-container/5 rounded-full">
+<span class="font-label-md text-primary-container uppercase tracking-widest">Loading...</span>
+</div>
+</header>
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column: Order Details -->
+<div class="col-span-12 lg:col-span-7 space-y-6">
+<!-- Section 1: Customer Details -->
+<section class="circuit-border glass-panel p-6">
+<h3 class="font-label-md text-label-md text-primary-container mb-4 uppercase tracking-tighter">── Data Pembeli ──</h3>
+<div class="grid grid-cols-2 gap-y-4">
+<div>
+<p class="font-label-sm text-on-surface-variant mb-1">Pembeli</p>
+<p id="buyer-name" class="font-body-lg text-body-lg font-bold">Memuat...</p>
+</div>
+<div>
+<p class="font-label-sm text-on-surface-variant mb-1">User ID</p>
+<p id="buyer-id" class="font-body-lg text-body-lg font-bold">Memuat...</p>
+</div>
+<div class="col-span-2">
+<p class="font-label-sm text-on-surface-variant mb-1">Alamat Pengiriman</p>
+<p id="buyer-address" class="font-body-md text-body-md">Memuat...</p>
+</div>
+<div class="col-span-2">
+<p class="font-label-sm text-on-surface-variant mb-1">Catatan Pembeli</p>
+<p id="buyer-note" class="font-body-md text-body-md italic text-primary-container/80">Memuat...</p>
+</div>
+<div>
+<p class="font-label-sm text-on-surface-variant mb-1">Metode Bayar</p>
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-surface-container-highest border border-outline-variant rounded">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span id="buyer-method" class="font-label-md">Memuat...</span>
+</div>
+</div>
+<div>
+<p class="font-label-sm text-on-surface-variant mb-1">No HP / Kontak</p>
+<p id="buyer-phone" class="font-body-lg text-body-lg font-bold">Memuat...</p>
+</div>
+</div>
+</section>
+<!-- Section 2: Order Items -->
+<section class="circuit-border glass-panel p-6">
+<h3 class="font-label-md text-label-md text-primary-container mb-4 uppercase tracking-tighter">── Item Pesanan ──</h3>
+<div class="space-y-4" id="order-items-list">
+    <p class="text-on-surface-variant text-center py-4">Memuat data item...</p>
+</div>
+<div class="flex justify-between items-center pt-4 border-t border-outline-variant mt-4">
+<p class="font-headline-md text-headline-md font-bold uppercase">Total Pembayaran</p>
+<p id="order-total" class="font-headline-md text-headline-md font-bold text-primary-container">Rp 0</p>
+</div>
+</section>
+
+<!-- Section 4: Status Update Actions (Menunggu Pembayaran) -->
+<section id="action-verify" class="grid grid-cols-2 gap-4 hidden">
+<button onclick="updateOrderStatus('Ditolak')" class="flex items-center justify-center gap-2 py-4 border border-error/50 bg-error/10 text-error font-bold uppercase tracking-widest hover:bg-error/20 transition-colors">
+<span class="material-symbols-outlined">close</span>
+                        ❌ Tolak Pesanan
+                    </button>
+<button onclick="updateOrderStatus('Diproses')" class="flex items-center justify-center gap-2 py-4 border border-primary-container/50 bg-primary-container/20 text-primary-container font-bold uppercase tracking-widest hover:bg-primary-container/30 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        ✅ Konfirmasi Pembayaran
+                    </button>
+</section>
+</div>
+
+<!-- Right Column: Verification & Fulfillment -->
+<div class="col-span-12 lg:col-span-5 space-y-6">
+<!-- Section 3: Transfer Proof -->
+<section class="circuit-border glass-panel p-6">
+<h3 class="font-label-md text-label-md text-primary-container mb-6 text-center uppercase tracking-tighter">── Bukti Transfer ──</h3>
+<div class="relative group cursor-zoom-in" id="proof-container">
+<div class="aspect-[3/4] w-full bg-surface-container-highest border border-outline-variant flex flex-col items-center justify-center overflow-hidden rounded relative">
+<img id="proof-img" alt="Foto Bukti TF" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" src="">
+<div id="no-proof-text" class="hidden absolute inset-0 flex flex-col items-center justify-center text-on-surface-variant font-label-md">
+    <span class="material-symbols-outlined text-4xl mb-2 opacity-50">hide_image</span>
+    Tidak ada bukti transfer
+</div>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:bg-primary-container/10 transition-colors">
+<span class="material-symbols-outlined text-4xl text-primary-container drop-shadow-lg">photo_library</span>
+</div>
+</div>
+<p class="text-center font-label-sm text-on-surface-variant mt-4 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                            ← klik gambar untuk lihat resolusi penuh
+                        </p>
+</div>
+</section>
+<!-- Section 5: Post-Confirmation Actions (Diproses) -->
+<section id="action-ship" class="circuit-border glass-panel p-6 border-dashed opacity-80 hidden">
+<h3 class="font-label-md text-label-md text-primary-container mb-6 text-center uppercase tracking-tighter">── Setelah Dikonfirmasi ──</h3>
+<div class="space-y-4">
+<div>
+<label class="font-label-sm text-on-surface-variant mb-2 block">Input Nomor Resi</label>
+<input id="input-resi" class="w-full bg-surface-container-lowest border-0 border-b border-outline-variant focus:border-primary-container focus:ring-0 text-on-surface font-label-md p-3 transition-colors" placeholder="Masukkan Nomor Resi..." type="text">
+</div>
+<button onclick="kirimPesananDenganResi(event)" class="w-full flex items-center justify-center gap-2 py-4 bg-primary-container text-on-primary font-bold uppercase tracking-widest active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">package_2</span>
+                            📦 Tandai Sudah Dikirim
+                        </button>
+</div>
+</section>
+</div>
+</div>
+</main>
+<script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('id');
+
+        async function fetchOrderData() {
+            if (!orderId) {
+                Swal.fire({ title: 'Error', text: 'Sistem tidak mendeteksi ID Pesanan.', icon: 'error' }).then(() => {
+                    window.location.href = '/admin.html';
+                });
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('tokenTokoGame');
+                if(!token) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+                const resInfo = await fetch(`/api/orders/info/${orderId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!resInfo.ok) throw new Error('Order not found');
+                const orderInfo = await resInfo.json();
+
+                const resItems = await fetch(`/api/orders/detail/${orderId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const orderItems = await resItems.json();
+
+                // Isi Data
+                document.getElementById('order-title').innerHTML = `<span class="material-symbols-outlined text-4xl">assignment</span> 📋 Pesanan #ORD-${orderInfo.id}`;
+                
+                const badge = document.getElementById('order-status-badge');
+                badge.querySelector('span').innerText = orderInfo.status;
+                if(orderInfo.status === 'Ditolak') {
+                    badge.classList.replace('border-primary-container/30', 'border-error/30');
+                    badge.classList.replace('bg-primary-container/5', 'bg-error/5');
+                    badge.querySelector('span').classList.replace('text-primary-container', 'text-error');
+                } else if(orderInfo.status === 'Dikirim') {
+                    badge.classList.replace('border-primary-container/30', 'border-green-500/30');
+                    badge.classList.replace('bg-primary-container/5', 'bg-green-500/5');
+                    badge.querySelector('span').classList.replace('text-primary-container', 'text-green-500');
+                }
+
+                document.getElementById('buyer-name').innerText = orderInfo.pembeli || 'Unknown';
+                document.getElementById('buyer-id').innerText = orderInfo.user_id;
+                document.getElementById('buyer-phone').innerText = orderInfo.no_hp || 'Tidak ada no HP';
+                document.getElementById('buyer-address').innerText = orderInfo.alamat_kirim || 'Alamat tidak tersedia';
+                document.getElementById('buyer-note').innerText = orderInfo.catatan || 'Tidak ada catatan';
+                document.getElementById('buyer-method').innerText = orderInfo.metode_bayar || 'Transfer Bank';
+
+                const listEl = document.getElementById('order-items-list');
+                listEl.innerHTML = '';
+                orderItems.forEach(item => {
+                    const img = item.gambar ? (item.gambar.startsWith('/') ? item.gambar : '/' + item.gambar) : '';
+                    listEl.innerHTML += `
+                        <div class="flex justify-between items-center py-2 border-b border-outline-variant">
+                            <div class="flex gap-4 items-center">
+                                <div class="w-12 h-12 bg-surface-container-highest flex items-center justify-center rounded overflow-hidden">
+                                    ${img ? `<img src="${img}" class="w-full h-full object-cover">` : '<span class="material-symbols-outlined text-on-surface-variant">sports_esports</span>'}
+                                </div>
+                                <div>
+                                    <p class="font-body-md font-bold text-on-surface">${item.nama_produk}</p>
+                                    <p class="font-label-sm text-on-surface-variant">x${item.jumlah} Unit</p>
+                                </div>
+                            </div>
+                            <p class="font-label-md font-bold text-primary-container">Rp ${new Intl.NumberFormat('id-ID').format(item.harga_satuan)}</p>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('order-total').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(orderInfo.total_harga);
+
+                // Bukti Transfer
+                const proofImg = document.getElementById('proof-img');
+                const noProofText = document.getElementById('no-proof-text');
+                const proofContainer = document.getElementById('proof-container');
+                if(orderInfo.bukti_transfer) {
+                    proofImg.src = orderInfo.bukti_transfer;
+                    proofContainer.onclick = () => window.open(orderInfo.bukti_transfer, '_blank');
+                } else {
+                    proofImg.style.display = 'none';
+                    noProofText.classList.remove('hidden');
+                    proofContainer.classList.remove('cursor-zoom-in');
+                    proofContainer.querySelector('.group-hover\\:bg-primary-container\\/10').classList.add('hidden');
+                }
+
+                // Pengaturan Tombol Status
+                const sectionVerify = document.getElementById('action-verify');
+                const sectionShip = document.getElementById('action-ship');
+
+                if(orderInfo.status.toLowerCase().includes('menunggu')) {
+                    sectionVerify.classList.remove('hidden');
+                } else if(orderInfo.status === 'Diproses') {
+                    sectionShip.classList.remove('hidden');
+                    if (orderInfo.alamat_kirim === 'Pesanan ambil langsung di toko') {
+                        sectionShip.innerHTML = `
+                        <h3 class="font-label-md text-label-md text-primary-container mb-6 text-center uppercase tracking-tighter">── Pengambilan Pesanan ──</h3>
+                        <div class="space-y-4">
+                            <p class="text-sm text-center text-on-surface-variant mb-4">Pesanan sudah siap diambil oleh pembeli.</p>
+                            <button onclick="updateOrderStatus('Selesai', event)" class="w-full flex items-center justify-center gap-2 py-4 bg-primary-container text-on-primary font-bold uppercase tracking-widest active:scale-[0.98] transition-transform">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">storefront</span>
+                                ✅ Tandai Sudah Diambil
+                            </button>
+                        </div>`;
+                    }
+                }
+                // Jika Ditolak, Selesai, atau Dikirim, semua aksi hilang.
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire({ title: 'Error', text: 'Gagal mengambil data pesanan.', icon: 'error' });
+            }
+        }
+
+        async function kirimPesananDenganResi(event) {
+            const resi = document.getElementById('input-resi').value.trim();
+            if (!resi) {
+                Swal.fire({ title: 'Perhatian', text: 'Tolong masukkan nomor resi terlebih dahulu!', icon: 'warning' });
+                return;
+            }
+            await updateOrderStatus('Dikirim', event, resi);
+        }
+
+        async function updateOrderStatus(newStatus, e = window.event, resi = '') {
+            const btn = e.currentTarget;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Memproses...';
+            btn.disabled = true;
+
+            let finalStatus = newStatus;
+            if (resi) finalStatus = `Dikirim (Resi: ${resi})`;
+
+            try {
+                const token = localStorage.getItem('tokenTokoGame');
+                const res = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: finalStatus })
+                });
+                if(res.ok) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    Swal.fire({ title: 'Gagal', text: 'Gagal update status', icon: 'error' });
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                Swal.fire({ title: 'Error', text: 'Error server!', icon: 'error' });
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchOrderData);
+    </script>
+</body></html>

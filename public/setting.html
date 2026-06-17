@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>NEO-STORE | Pengaturan Akun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body { background-color: #0a0a0b; color: #e5e2e3; font-family: 'Space Grotesk', sans-serif; background-image: radial-gradient(circle at 2px 2px, rgba(0, 212, 255, 0.03) 1px, transparent 0); background-size: 24px 24px; }
+        .glass-nav { background: rgba(10, 10, 11, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .cyber-card { background: #131314; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .cyber-input { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; transition: all 0.3s; }
+        .cyber-input:focus { border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.2); outline: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
+    <nav class="sticky top-0 z-50 glass-nav h-20 shadow-[0_0_15px_rgba(0,212,255,0.1)]">
+        <div class="h-full max-w-[1280px] mx-auto px-6 flex justify-between items-center">
+            <div class="flex flex-col">
+                <a href="/index.html" class="text-2xl font-bold text-[#00d4ff] tracking-tighter leading-none">NEO-STORE</a>
+                <span id="user-greeting" class="text-xs text-gray-400 mt-1 hidden">Hi, <span id="user-name-display" class="text-white font-bold"></span></span>
+            </div>
+            <div class="flex items-center gap-6">
+                <button class="text-[#00d4ff] transition relative" onclick="window.location.href='/setting.html'" title="Pengaturan Akun">
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                </button>
+                <button class="text-gray-400 hover:text-[#00d4ff] transition relative" onclick="window.location.href='/riwayat.html'" title="Riwayat Pesanan">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                </button>
+                <button class="text-gray-400 hover:text-[#00d4ff] transition relative" onclick="window.location.href='/keranjang.html'" title="Keranjang">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                </button>
+                <button id="btn-logout" class="px-4 py-2 border border-red-500/50 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors text-sm font-bold tracking-wider" onclick="logoutUser()">LOGOUT</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-2xl mx-auto px-6 py-12">
+        <h1 class="text-3xl font-bold text-white mb-2 uppercase tracking-wide border-l-4 border-[#00d4ff] pl-4">Pengaturan Akun</h1>
+        <p class="text-gray-400 mb-8 pl-5">Perbarui profil dan kata sandi Anda</p>
+
+        <div class="cyber-card p-8 rounded-xl shadow-[0_0_20px_rgba(0,212,255,0.05)] relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-[#00d4ff]/5 rounded-bl-full -z-10 group-hover:bg-[#00d4ff]/10 transition-colors"></div>
+            
+            <form id="settingForm" class="space-y-6">
+                <!-- Profil Info -->
+                <div class="space-y-4">
+                    <h2 class="text-xl font-bold text-[#00d4ff] border-b border-white/10 pb-2">Informasi Profil</h2>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Nama Lengkap</label>
+                        <input type="text" id="nama" class="cyber-input w-full px-4 py-3 rounded text-sm" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Email (Hanya Baca)</label>
+                        <input type="email" id="email" class="cyber-input w-full px-4 py-3 rounded text-sm opacity-50 cursor-not-allowed" disabled>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Nomor HP / WA</label>
+                        <input type="text" id="no_hp" class="cyber-input w-full px-4 py-3 rounded text-sm" placeholder="Contoh: 08123456789">
+                    </div>
+                </div>
+
+                <!-- Keamanan -->
+                <div class="space-y-4 pt-6 mt-6 border-t border-white/10">
+                    <h2 class="text-xl font-bold text-[#ecb1ff] border-b border-white/10 pb-2">Keamanan</h2>
+                    <p class="text-xs text-gray-500 mb-4">*Kosongkan jika tidak ingin mengubah password</p>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Password Lama</label>
+                        <div class="relative">
+                            <input type="password" id="password_lama" autocomplete="new-password" class="cyber-input w-full px-4 py-3 rounded text-sm pr-12">
+                            <button type="button" onclick="togglePassword('password_lama', 'icon_lama')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#00d4ff] transition-colors focus:outline-none flex items-center justify-center">
+                                <span id="icon_lama" class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">Password Baru</label>
+                        <div class="relative">
+                            <input type="password" id="password_baru" autocomplete="new-password" class="cyber-input w-full px-4 py-3 rounded text-sm pr-12">
+                            <button type="button" onclick="togglePassword('password_baru', 'icon_baru')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#00d4ff] transition-colors focus:outline-none flex items-center justify-center">
+                                <span id="icon_baru" class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" class="w-full py-4 bg-[#00d4ff]/10 text-[#00d4ff] border border-[#00d4ff]/50 rounded hover:bg-[#00d4ff] hover:text-black transition-colors font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(0,212,255,0.2)]">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="bg-[#131314] border-t border-white/10 py-8 mt-auto">
+        <div class="max-w-[1280px] mx-auto px-6 flex justify-between items-center">
+            <div class="text-gray-400 text-sm"><span class="font-bold text-white mr-2">NEO-STORE</span> | Cyberpunk Gaming Hub</div>
+            <div class="text-gray-500 text-xs font-bold tracking-widest">© 2026 NEO-STORE.</div>
+        </div>
+    </footer>
+
+    <script>
+        function showNotif(pesan, tipe = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let borderColor = 'border-[#00d4ff]';
+            let bgColor = 'bg-[#00d4ff]/10';
+            let icon = 'check_circle';
+            let iconColor = 'text-[#00d4ff]';
+            let shadow = 'shadow-[0_0_15px_rgba(0,212,255,0.2)]';
+
+            if (tipe === 'error') {
+                borderColor = 'border-red-500'; bgColor = 'bg-red-500/10'; icon = 'warning'; iconColor = 'text-red-500'; shadow = 'shadow-[0_0_15px_rgba(239,68,68,0.2)]';
+            }
+
+            toast.className = `flex items-center gap-4 bg-[#111113] border ${borderColor} ${bgColor} p-4 rounded-lg ${shadow} transform transition-all duration-300 translate-x-[120%] opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<span class="material-symbols-outlined ${iconColor} text-2xl">${icon}</span><p class="text-white text-sm font-bold tracking-wide">${pesan}</p>`;
+            container.appendChild(toast);
+
+            setTimeout(() => { toast.classList.remove('translate-x-[120%]', 'opacity-0'); toast.classList.add('translate-x-0', 'opacity-100'); }, 10);
+            setTimeout(() => { toast.classList.remove('translate-x-0', 'opacity-100'); toast.classList.add('translate-x-[120%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        let token = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userData = localStorage.getItem('userTokoGame');
+            if (!userData) {
+                window.location.replace('/login.html');
+                return;
+            }
+            
+            const user = JSON.parse(userData);
+            token = localStorage.getItem('tokenTokoGame');
+
+            document.getElementById('user-greeting').classList.remove('hidden');
+            document.getElementById('user-name-display').innerText = user.nama;
+
+            fetchProfile();
+        });
+
+        async function fetchProfile() {
+            try {
+                const res = await fetch('/api/user/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const response = await res.json();
+                if (response.success) {
+                    document.getElementById('nama').value = response.data.nama;
+                    document.getElementById('email').value = response.data.email;
+                    document.getElementById('no_hp').value = response.data.no_hp || '';
+                } else {
+                    showNotif(response.message || 'Gagal memuat profil', 'error');
+                }
+            } catch (err) {
+                showNotif('Terjadi kesalahan koneksi', 'error');
+            }
+        }
+
+        document.getElementById('settingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nama = document.getElementById('nama').value;
+            const no_hp = document.getElementById('no_hp').value;
+            const password_lama = document.getElementById('password_lama').value;
+            const password_baru = document.getElementById('password_baru').value;
+
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ nama, no_hp, password_lama, password_baru })
+                });
+                const response = await res.json();
+                
+                if (response.success) {
+                    showNotif(response.message, 'success');
+                    
+                    // Update LocalStorage user name
+                    const userData = JSON.parse(localStorage.getItem('userTokoGame'));
+                    userData.nama = nama;
+                    localStorage.setItem('userTokoGame', JSON.stringify(userData));
+                    document.getElementById('user-name-display').innerText = nama;
+                    
+                    // Clear password fields
+                    document.getElementById('password_lama').value = '';
+                    document.getElementById('password_baru').value = '';
+                } else {
+                    showNotif(response.message, 'error');
+                }
+            } catch (err) {
+                showNotif('Terjadi kesalahan server', 'error');
+            }
+        });
+
+        function logoutUser() {
+            localStorage.removeItem('userTokoGame');
+            localStorage.removeItem('tokenTokoGame');
+            window.location.replace('/index.html');
+        }
+
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerText = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.innerText = 'visibility';
+            }
+        }
+    </script>
+</body>
+</html>

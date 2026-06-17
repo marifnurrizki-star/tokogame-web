@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>NEO-STORE | SUCCESS</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        body { background-color: #0a0a0b; color: #e5e2e3; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+        .cyber-grid { background-image: linear-gradient(to right, rgba(168, 232, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(168, 232, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
+        .neon-glow-primary { box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }
+        .glass-panel { background: rgba(19, 19, 20, 0.75); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .success-animation-container { position: relative; width: 120px; height: 120px; }
+        @keyframes drawCheck { 0% { stroke-dashoffset: 48; } 100% { stroke-dashoffset: 0; } }
+        .check-path { stroke-dasharray: 48; stroke-dashoffset: 48; animation: drawCheck 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards 0.5s; }
+        .pulse-glow { animation: pulseGlow 2s infinite alternate; }
+        @keyframes pulseGlow { from { filter: drop-shadow(0 0 5px rgba(168, 232, 255, 0.4)); } to { filter: drop-shadow(0 0 15px rgba(168, 232, 255, 0.8)); } }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#a8e8ff", "on-primary": "#003642", surface: "#131314", "on-surface": "#e5e2e3", "on-surface-variant": "#bbc9cf" } } } }
+    </script>
+</head>
+<body class="min-h-screen flex flex-col cyber-grid">
+    <nav class="fixed top-0 w-full z-50 bg-surface/75 backdrop-blur-xl border-b border-white/10 shadow-[0_0_15px_rgba(0,212,255,0.1)]">
+        <div class="flex justify-between items-center h-20 px-8 max-w-[1440px] mx-auto">
+            <div class="flex flex-col">
+                <div class="text-2xl font-bold tracking-tighter text-primary leading-none">NEO-STORE</div>
+                <span id="user-greeting" class="text-xs text-on-surface-variant mt-1 hidden">Hi, <span id="user-name-display" class="text-white font-bold"></span></span>
+            </div>
+        </div>
+    </nav>
+    <main class="flex-grow pt-32 pb-24 px-6 flex items-center justify-center relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div class="max-w-xl w-full glass-panel p-8 md:p-12 rounded-xl relative z-10 overflow-hidden">
+            <div class="flex flex-col items-center text-center">
+                <div class="success-animation-container mb-6">
+                    <svg class="w-full h-full pulse-glow" viewBox="0 0 52 52">
+                        <circle class="opacity-20" cx="26" cy="26" fill="none" r="25" stroke="#a8e8ff" stroke-width="2"></circle>
+                        <path class="check-path" d="M14.1 27.2l7.1 7.2 16.7-16.8" fill="none" stroke="#a8e8ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+                    </svg>
+                </div>
+                <h1 class="text-4xl text-primary mb-2 tracking-tight font-bold">Pesanan Berhasil Dikirim!</h1>
+                <div class="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded mb-6 mt-4">
+                    <span class="text-xs text-primary/60 uppercase">System ID:</span>
+                    <code id="display-order-id" class="font-mono text-lg font-bold text-primary tracking-widest">#ORD-SUCCESS</code>
+                </div>
+                <p class="text-base text-on-surface-variant max-w-md mb-8">
+                    Pesanan Anda sedang menunggu konfirmasi dari admin. Kami akan menghubungi Anda via <span class="text-primary font-bold">WhatsApp</span> jika sudah dikonfirmasi.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 w-full">
+                    <button onclick="window.location.href='/riwayat.html'" class="flex-1 bg-primary text-[#003642] text-xl font-bold py-3 rounded-lg neon-glow-primary hover:brightness-110 transition-all">
+                        Lihat Status Pesanan
+                    </button>
+                    <button onclick="window.location.href='/index.html'" class="flex-1 border border-primary/40 text-primary text-xl font-bold py-3 rounded-lg hover:bg-primary/10 transition-all">
+                        Kembali ke Home
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        // Ambil ID pesanan dari Local Storage yang diset pas checkout
+        const lastOrderId = localStorage.getItem('lastOrderId');
+        if(lastOrderId) {
+            document.getElementById('display-order-id').innerText = '#ORD-' + lastOrderId;
+        }
+        const userData = localStorage.getItem('userTokoGame');
+        if (userData) {
+            const user = JSON.parse(userData);
+            const greeting = document.getElementById('user-greeting');
+            if(greeting) {
+                greeting.classList.remove('hidden');
+                document.getElementById('user-name-display').innerText = user.nama;
+            }
+        }
+    </script>
+</body>
+</html>

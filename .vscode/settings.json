@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^powershell -NoProfile -Command \"Get-Item \\.\\\\public\\\\detailP\\.html \\| Select-Object FullName,Length \\| Format-List\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

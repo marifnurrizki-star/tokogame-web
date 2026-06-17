@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Pesanan Saya | NEO-STORE</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body { background-color: #0a0a0b; color: #e5e2e3; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        .glass-panel { background: rgba(19, 19, 20, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .status-flicker { animation: flicker 3s infinite; }
+        @keyframes flicker { 0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% { opacity: 1; } 20%, 21.999%, 63%, 63.999%, 65%, 69.999% { opacity: 0.4; } }
+        .cyber-grid { background-image: linear-gradient(rgba(168, 232, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 232, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#a8e8ff", "primary-container": "#00d4ff", surface: "#131314", "on-surface": "#e5e2e3", "on-surface-variant": "#bbc9cf" } } } }
+    </script>
+</head>
+<body class="flex flex-col min-h-screen cyber-grid">
+    
+    <nav class="fixed top-0 w-full z-50 bg-surface/75 backdrop-blur-xl border-b border-white/10 h-20 flex justify-between items-center px-8">
+        <div class="flex flex-col cursor-pointer" onclick="window.location.href='/index.html'">
+            <div class="text-2xl font-bold tracking-tighter text-primary leading-none">NEO-STORE</div>
+            <span id="user-greeting" class="text-xs text-on-surface-variant mt-1 hidden">Hi, <span id="user-name-display" class="text-white font-bold"></span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="window.location.href='/setting.html'" class="material-symbols-outlined text-primary p-2 hover:bg-white/5 rounded-full transition-colors" title="Pengaturan Akun">manage_accounts</button>
+            <button onclick="window.location.href='/index.html'" class="material-symbols-outlined text-primary p-2 hover:bg-white/5 rounded-full transition-colors">home</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-32 pb-24 max-w-[1440px] mx-auto px-6 w-full">
+        <div class="mb-12">
+            <h1 class="text-4xl text-primary font-bold tracking-tight mb-2">PESANAN SAYA</h1>
+            <div class="h-1 w-24 bg-primary-container shadow-[0_0_10px_rgba(0,212,255,0.5)]"></div>
+        </div>
+        
+        <div id="tempat-riwayat" class="grid gap-6">
+            <div class="text-center py-10">
+                <span class="material-symbols-outlined animate-spin text-4xl text-primary">refresh</span>
+                <p class="mt-4 text-on-surface-variant">Mengakses Database Server...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Cek KTP User yang lagi login sekarang!
+            const user = JSON.parse(localStorage.getItem('userTokoGame'));
+            
+            // Kalau nggak ada yang login, lempar ke depan
+            if (!user) {
+                showNotif('Sesi Anda telah berakhir! Silakan masuk kembali.', 'error');
+                window.location.href = '/index.html';
+                return;
+            }
+
+            const greeting = document.getElementById('user-greeting');
+            if(greeting) {
+                greeting.classList.remove('hidden');
+                document.getElementById('user-name-display').innerText = user.nama;
+            }
+
+            const tempatRiwayat = document.getElementById('tempat-riwayat');
+
+            // 2. Minta data ke server KHUSUS buat ID User ini aja
+            const token = localStorage.getItem('tokenTokoGame');
+            if(!token) return;
+
+            fetch(`/api/orders/user/${user.id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                tempatRiwayat.innerHTML = ''; // Hapus loading spinner
+                
+                // Kalau user ini belum pernah jajan sama sekali
+                if (data.length === 0) {
+                    tempatRiwayat.innerHTML = `
+                        <div class="glass-panel p-12 rounded-lg text-center opacity-70 border border-white/10 flex flex-col items-center">
+                            <span class="material-symbols-outlined text-6xl mb-4 text-on-surface-variant opacity-50">shopping_cart_checkout</span>
+                            <h3 class="text-2xl font-bold text-on-surface mb-2">Riwayat Kosong</h3>
+                            <p class="text-on-surface-variant">Akun Anda belum memiliki riwayat transaksi. Silakan berbelanja terlebih dahulu!</p>
+                            <button onclick="window.location.href='/index.html'" class="mt-6 px-8 py-3 bg-primary text-black font-bold rounded shadow-[0_0_15px_rgba(168,232,255,0.4)] hover:scale-105 transition-all">Mulai Belanja</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 3. Kalau ada isinya, kita cetak desain HTML-nya satu per satu
+                data.forEach(order => {
+                    // Format ke Rupiah
+                    const hargaFormat = new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR'}).format(order.total_harga);
+                    
+                    // Mainin warna sesuai status biar keren
+                    let statusColor = 'text-amber-400';
+                    let dotPulse = 'status-flicker shadow-[0_0_10px_rgba(255,191,0,0.5)]';
+                    
+                    if (order.status === 'Dikirim' || order.status === 'Selesai') {
+                        statusColor = 'text-emerald-400';
+                        dotPulse = 'shadow-[0_0_10px_rgba(0,255,127,0.5)]';
+                    } else if (order.status === 'Dibatalkan' || order.status === 'Ditolak') {
+                        statusColor = 'text-red-400';
+                        dotPulse = 'shadow-[0_0_10px_rgba(248,113,113,0.5)]';
+                    }
+
+                    // Tembak desain card-nya ke layar
+                    tempatRiwayat.innerHTML += `
+                        <div class="glass-panel p-6 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-primary/50 transition-all group">
+                            <div class="flex gap-6 items-center">
+                                <div class="w-16 h-16 rounded-md bg-[#2a2a2b] group-hover:bg-primary/10 transition-colors flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-3xl">package_2</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-on-surface tracking-wider">#ORD-${order.id}</h3>
+                                    <p class="text-sm text-on-surface-variant">${order.metode_bayar || 'Transfer Bank'}</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col md:items-end gap-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-current ${statusColor} ${dotPulse}"></span>
+                                    <span class="text-sm ${statusColor} uppercase tracking-widest font-bold">${order.status}</span>
+                                </div>
+                                <p class="text-xl text-primary font-bold">${hargaFormat}</p>
+                            </div>
+                            <button onclick="window.location.href='/detail.html?id=${order.id}'" class="px-6 py-2 border border-primary text-primary rounded-md hover:bg-primary text-black transition-all font-bold">
+                                Lihat Detail
+                            </button>
+                        </div>
+                    `;
+                });
+            })
+            .catch(err => {
+                console.error("Gagal narik data:", err);
+                tempatRiwayat.innerHTML = '<p class="text-red-400 text-center py-10 font-bold border border-red-400/20 bg-red-400/5 rounded">Gagal terhubung ke Database. Cek terminal Node.js lu!</p>';
+            });
+        });
+    </script>
+</body>
+</html>

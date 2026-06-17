@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+<head>
+    <!-- restored detail page -->
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Detail Produk | NEO-STORE</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary-fixed-variant": "#75009e", "outline-variant": "#3c494e", "surface-variant": "#353436", "on-secondary": "#520070", "on-tertiary-fixed-variant": "#47464b", "error-red": "#ffb4ab", "surface-container-high": "#2a2a2b", "on-tertiary-fixed": "#1b1b1f", "on-background": "#e5e2e3", "background": "#131314", "secondary-fixed-dim": "#ecb1ff", "surface-container-low": "#1c1b1c", "on-primary-fixed": "#001f27", "inverse-on-surface": "#313031", "on-error-container": "#ffdad6", "error": "#ffb4ab", "on-secondary-fixed": "#320046", "on-error": "#690005", "surface-container-lowest": "#0e0e0f", "surface": "#131314", "outline": "#859398", "surface-tint": "#3cd7ff", "primary-fixed-dim": "#3cd7ff", "neon-purple": "#ecb1ff", "on-primary-fixed-variant": "#004e5f", "on-tertiary-container": "#504f54", "on-surface-variant": "#bbc9cf", "surface-container": "#201f20", "primary-fixed": "#b4ebff", "secondary-container": "#d05bff", "inverse-primary": "#00677e", "secondary-fixed": "#f9d8ff", "on-primary": "#003642", "surface-glass": "rgba(10, 10, 11, 0.75)", "on-tertiary": "#303034", "tertiary-fixed-dim": "#c8c5cb", "primary-container": "#00d4ff", "tertiary": "#e1dee3", "secondary": "#ecb1ff", "primary": "#a8e8ff", "surface-bright": "#3a393a", "neon-blue": "#00d4ff", "surface-dim": "#131314", "inverse-surface": "#e5e2e3", "on-surface": "#e5e2e3", "on-secondary-container": "#480063", "surface-container-highest": "#353436", "error-container": "#93000a", "tertiary-container": "#c4c2c7", "tertiary-fixed": "#e4e1e7", "on-primary-container": "#00586b" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "xs": "4px", "container-max": "1440px", "xl": "80px", "md": "24px", "sm": "12px", "gutter": "24px", "lg": "48px", "base": "8px" }, fontFamily: { "body-md": ["Geist"], "headline-lg": ["Space Grotesk"], "label-sm": ["Geist"], "body-lg": ["Geist"], "label-md": ["Geist"], "headline-sm": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "display-lg": ["Space Grotesk"] }, fontSize: { "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}], "headline-lg": ["40px", {"lineHeight": "1.2", "fontWeight": "700"}], "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "600"}], "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}], "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "500"}], "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}], "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}], "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}] } } } }
+    </script>
+    <style>
+        body { background-color: #0a0a0b; background-image: radial-gradient(circle at 2px 2px, rgba(0, 212, 255, 0.03) 1px, transparent 0); background-size: 24px 24px; color: #e5e2e3; }
+        .glass-panel { background: rgba(10, 10, 11, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .neon-glow:hover { box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); border-color: #00d4ff; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md">
+
+    <div id="toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
+    <nav class="fixed top-0 w-full z-50 bg-surface-glass backdrop-blur-md border-b border-white/10 shadow-[0_0_15px_rgba(0,212,255,0.2)]">
+        <div class="flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto">
+            <div class="flex flex-col">
+                <a href="/index.html" class="font-headline-md text-headline-md tracking-tighter text-neon-blue leading-none">NEO-STORE</a>
+                <span id="user-greeting" class="text-xs text-on-surface-variant mt-1 hidden">Hi, <span id="user-name-display" class="text-white font-bold"></span></span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="window.location.href='/setting.html'" class="material-symbols-outlined text-on-surface-variant hover:text-neon-blue transition-all active:scale-95" title="Pengaturan Akun">manage_accounts</button>
+                <button onclick="window.location.href='/keranjang.html'" class="material-symbols-outlined text-on-surface-variant hover:text-neon-blue transition-all active:scale-95">shopping_cart</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pb-xl px-gutter max-w-container-max mx-auto w-full pt-24">
+        <nav class="mb-md flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant">
+            <a class="hover:text-neon-blue transition-colors" href="/index.html">Home</a>
+            <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+            <span class="hover:text-neon-blue transition-colors cursor-pointer">Katalog</span>
+            <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+            <span id="bc-title" class="text-neon-blue">Memuat...</span>
+        </nav>
+
+        <section class="grid grid-cols-1 md:grid-cols-12 gap-lg mb-xl">
+            <div class="md:col-span-7">
+                <div class="glass-panel overflow-hidden rounded-lg aspect-[4/5] flex items-center justify-center md:aspect-video">
+                    <img id="detail-image" alt="Product Cover" class="w-full h-full object-cover" src=""/>
+                </div>
+            </div>
+            
+            <div class="md:col-span-5 flex flex-col gap-md">
+                <div>
+                    <h1 id="detail-title" class="font-headline-md text-headline-md text-white mb-xs">Memuat Data...</h1>
+                    <div class="flex items-center gap-md text-label-md font-label-md">
+                        <span id="detail-category" class="text-neon-blue">Platform: -</span>
+                        <span class="text-on-surface-variant">|</span>
+                        <span id="detail-condition" class="text-on-surface-variant">Condition: Baru</span>
+                        <span class="text-on-surface-variant">|</span>
+                        <span id="detail-stock" class="text-error-red">Stock: -</span>
+                    </div>
+                </div>
+                
+                <div class="py-md border-y border-white/10">
+                    <div id="detail-price" class="text-neon-blue font-headline-md text-headline-md">Rp 0</div>
+                </div>
+                
+                <div class="space-y-sm">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Quantity</label>
+                    <div class="flex items-center gap-md">
+                        <div class="flex items-center glass-panel rounded-full overflow-hidden border-white/20 h-12">
+                            <button class="px-4 hover:bg-white/10 transition-colors h-full flex items-center justify-center active:scale-90" onclick="updateQty(-1)">
+                                <span class="material-symbols-outlined text-[18px]">remove</span>
+                            </button>
+                            <span class="w-12 text-center font-bold" id="qty-val">1</span>
+                            <button class="px-4 hover:bg-white/10 transition-colors h-full flex items-center justify-center active:scale-90" onclick="updateQty(1)">
+                                <span class="material-symbols-outlined text-[18px]">add</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-sm mt-sm">
+                    <button id="btn-add-cart" class="flex-grow bg-neon-blue text-background font-bold rounded-full flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,212,255,0.6)] transition-all active:scale-[0.98] h-12">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        Masukkan Keranjang
+                    </button>
+                    <button onclick="window.location.href='/index.html'" class="px-8 glass-panel border-neon-blue/50 text-neon-blue font-bold rounded-full flex items-center justify-center gap-2 hover:bg-neon-blue/10 transition-all active:scale-[0.98] h-12">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                        Kembali
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-xl">
+            <div class="border-b border-white/10 flex mb-lg">
+                <div class="px-8 py-4 font-headline-sm text-headline-sm text-neon-blue border-b-2 border-neon-blue">Deskripsi</div>
+            </div>
+            <div class="glass-panel rounded-lg p-md">
+                <div id="detail-desc" class="prose prose-invert max-w-none space-y-sm text-on-surface-variant font-label-md">
+                    Memuat deskripsi produk...
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="w-full mt-auto bg-background border-t border-white/10">
+        <div class="flex flex-col md:flex-row justify-between items-center px-gutter py-md max-w-container-max mx-auto gap-sm">
+            <div class="font-headline-sm text-headline-sm text-neon-blue">NEO-STORE</div>
+            <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">
+                © 2026 NEO-STORE. SYSTEM STATUS: OPERATIONAL
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- MESIN NOTIFIKASI TOAST ---
+        function showNotif(pesan, tipe = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const isSuccess = tipe === 'success';
+            const borderColor = isSuccess ? 'border-[#00d4ff]' : 'border-red-500';
+            const bgColor = isSuccess ? 'bg-[#00d4ff]/10' : 'bg-red-500/10';
+            const icon = isSuccess ? 'check_circle' : 'warning';
+            const iconColor = isSuccess ? 'text-[#00d4ff]' : 'text-red-500';
+            const shadow = isSuccess ? 'shadow-[0_0_15px_rgba(0,212,255,0.2)]' : 'shadow-[0_0_15px_rgba(239,68,68,0.2)]';
+
+            toast.className = `flex items-center gap-4 bg-[#111113] border ${borderColor} ${bgColor} p-4 rounded-lg ${shadow} transform transition-all duration-300 translate-x-[120%] opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<span class="material-symbols-outlined ${iconColor} text-2xl">${icon}</span><p class="text-white text-sm font-bold tracking-wide">${pesan}</p>`;
+            container.appendChild(toast);
+
+            setTimeout(() => { toast.classList.remove('translate-x-[120%]', 'opacity-0'); toast.classList.add('translate-x-0', 'opacity-100'); }, 10);
+            setTimeout(() => { toast.classList.remove('translate-x-0', 'opacity-100'); toast.classList.add('translate-x-[120%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // Wishlist helpers removed from detail page.
+
+        // --- PENGATUR JUMLAH BARANG ---
+        let currentQty = 1;
+        function updateQty(delta) {
+            const qtyEl = document.getElementById('qty-val');
+            currentQty = Math.max(1, Math.min(10, currentQty + delta));
+            qtyEl.innerText = currentQty;
+        }
+
+        // --- MESIN TARIK DATA DETAIL ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Ambil ID produk dari URL (misal: /detail.html?id=5)
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                showNotif('Sistem tidak menemukan ID produk!', 'error');
+                setTimeout(() => window.location.href = '/index.html', 1500);
+                return;
+            }
+
+            // Show user greeting
+            const userData = localStorage.getItem('userTokoGame');
+            if (userData) {
+                const user = JSON.parse(userData);
+                const greeting = document.getElementById('user-greeting');
+                if(greeting) {
+                    greeting.classList.remove('hidden');
+                    document.getElementById('user-name-display').innerText = user.nama;
+                }
+            }
+
+            try {
+                // Tarik semua produk dan cari yang ID-nya cocok
+                const res = await fetch('/api/products');
+                const products = await res.json();
+                const product = products.find(p => p.id == productId);
+
+                if (!product) {
+                    showNotif('Software tidak terdaftar di database!', 'error');
+                    setTimeout(() => window.location.href = '/index.html', 1500);
+                    return;
+                }
+
+                // Inject data ke HTML
+                document.getElementById('bc-title').innerText = product.nama_produk;
+                document.getElementById('detail-title').innerText = product.nama_produk;
+                document.getElementById('detail-category').innerText = `Platform: ${product.kategori || 'Digital'}`;
+                document.getElementById('detail-condition').innerText = `Condition: ${product.kondisi || 'Baru'}`;
+                document.getElementById('detail-stock').innerText = `Stock: ${product.stok} tersisa`;
+                document.getElementById('detail-price').innerText = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(product.harga);
+                
+                // Rapihin format deskripsi biar enter-nya kebaca
+                const formattedDesc = (product.deskripsi || 'Tidak ada data deskripsi.').replace(/\n/g, '<br>');
+                document.getElementById('detail-desc').innerHTML = `<p>${formattedDesc}</p>`;
+                
+                // Inject Gambar
+                const linkGambar = product.gambar ? (product.gambar.startsWith('/') ? product.gambar : '/' + product.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
+                document.getElementById('detail-image').src = linkGambar;
+
+                // Fungsi Klik Add to Cart
+                document.getElementById('btn-add-cart').onclick = async () => {
+                    const userData = localStorage.getItem('userTokoGame');
+                    const token = localStorage.getItem('tokenTokoGame');
+                    if (!userData || !token) {
+                        showNotif('Akses ditolak. Silakan masuk terlebih dahulu!', 'error');
+                        setTimeout(() => window.location.href = '/login.html', 1500);
+                        return;
+                    }
+                    
+                    const user = JSON.parse(userData);
+                    
+                    // Looping fetch sesuai Qty (Jumlah) yang dipilih
+                    document.getElementById('btn-add-cart').innerText = "Menyuntikkan...";
+                    document.getElementById('btn-add-cart').disabled = true;
+
+                    try {
+                        for(let i=0; i<currentQty; i++) {
+                            const resp = await fetch('/api/cart', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                body: JSON.stringify({ product_id: product.id })
+                            });
+                            if(resp.status === 401 || resp.status === 403) {
+                                localStorage.removeItem('userTokoGame');
+                                localStorage.removeItem('tokenTokoGame');
+                                window.location.href = '/login.html';
+                                return;
+                            }
+                        }
+                        showNotif(`${currentQty} unit ${product.nama_produk} berhasil masuk keranjang!`, 'success');
+                    } catch(err) {
+                        showNotif('Gagal menyuntikkan ke keranjang', 'error');
+                    }
+                    
+                    document.getElementById('btn-add-cart').innerHTML = `<span class="material-symbols-outlined">shopping_cart</span> Masukkan Keranjang`;
+                    document.getElementById('btn-add-cart').disabled = false;
+                };
+
+                // wishlist removed
+
+            } catch (err) {
+                showNotif('Gagal terhubung ke mainframe server.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

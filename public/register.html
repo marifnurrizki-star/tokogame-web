@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEO-STORE | Buat Akun Baru</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#b4ebff",
+                        "surface-container": "#171f33",
+                        "inverse-primary": "#00677e",
+                        "on-secondary": "#3c0090",
+                        "primary-container": "#00d4ff",
+                        "surface-variant": "#2d3449",
+                        "surface-dim": "#0b1326",
+                        "error": "#ffb4ab",
+                        "background": "#0b1326",
+                        "surface-tint": "#3cd7ff",
+                        "on-primary-container": "#00586b",
+                        "tertiary": "#ffd5d7",
+                        "on-error": "#690005",
+                        "surface": "#0b1326",
+                        "inverse-on-surface": "#283044",
+                        "on-secondary-fixed-variant": "#5700c9",
+                        "tertiary-fixed-dim": "#ffb2b8",
+                        "outline-variant": "#3c494e",
+                        "on-tertiary": "#67001d",
+                        "on-surface": "#dae2fd",
+                        "on-tertiary-fixed-variant": "#91002d",
+                        "on-primary-fixed-variant": "#004e5f",
+                        "surface-container-lowest": "#060e20",
+                        "tertiary-container": "#ffadb3",
+                        "tertiary-fixed": "#ffdadb",
+                        "surface-bright": "#31394d",
+                        "outline": "#859398",
+                        "error-container": "#93000a",
+                        "inverse-surface": "#dae2fd",
+                        "on-tertiary-container": "#a30033",
+                        "secondary": "#d1bcff",
+                        "secondary-container": "#7000ff",
+                        "on-secondary-container": "#ddcdff",
+                        "on-surface-variant": "#bbc9cf",
+                        "on-primary-fixed": "#001f27",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed": "#e9ddff",
+                        "primary-fixed-dim": "#3cd7ff",
+                        "on-tertiary-fixed": "#40000f",
+                        "on-primary": "#003642",
+                        "on-background": "#dae2fd",
+                        "surface-container-low": "#131b2e",
+                        "primary": "#a8e8ff",
+                        "surface-container-highest": "#2d3449",
+                        "surface-container-high": "#222a3d",
+                        "on-secondary-fixed": "#23005b",
+                        "secondary-fixed-dim": "#d1bcff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "margin-desktop": "32px",
+                        "sidebar-width": "260px",
+                        "sidebar-collapsed": "72px",
+                        "gutter": "16px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Space Grotesk"],
+                        "headline-lg": ["Space Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-md": ["Space Grotesk"],
+                        "body-lg": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "display-lg": ["Space Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-sm": ["10px", {"lineHeight": "1", "fontWeight": "500"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .neon-border {
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        .neon-border:focus-within {
+            border-color: #00d4ff;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+        }
+
+        .glass-panel {
+            background: rgba(23, 31, 51, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        
+        /* Custom Input Styling */
+        input:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop">
+
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
+<!-- Main Registration Card -->
+<main class="w-full max-w-md">
+<div class="glass-panel neon-border p-8 rounded-lg flex flex-col items-center">
+<!-- Gaming Controller Icon -->
+<div class="mb-6 flex items-center justify-center w-16 h-16 rounded-full bg-surface-container-highest border border-outline-variant">
+<span class="material-symbols-outlined text-primary-container text-4xl" data-icon="sports_esports">
+                    sports_esports
+                </span>
+</div>
+<!-- Title -->
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-8 tracking-tight">
+                Buat Akun Baru
+            </h1>
+<!-- Registration Form -->
+<form action="#" class="w-full space-y-6" id="registrationForm">
+
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block uppercase" for="nama">
+                        Nama Lengkap
+                    </label>
+<div class="neon-border bg-surface-container-lowest flex items-center px-4 py-3">
+<input class="bg-transparent border-none w-full text-on-surface placeholder:text-outline p-0 focus:ring-0" id="nama" placeholder="Nama Anda" type="text" required />
+</div>
+</div>
+
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block uppercase" for="no_hp">
+                        No HP / WA
+                    </label>
+<div class="neon-border bg-surface-container-lowest flex items-center px-4 py-3">
+<input class="bg-transparent border-none w-full text-on-surface placeholder:text-outline p-0 focus:ring-0" id="no_hp" placeholder="08xxxxxxxxxx" type="tel" required />
+</div>
+</div>
+
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block uppercase" for="email">
+                        Email
+                    </label>
+<div class="neon-border bg-surface-container-lowest flex items-center px-4 py-3">
+<input class="bg-transparent border-none w-full text-on-surface placeholder:text-outline p-0 focus:ring-0" id="email" placeholder="contoh@domain.com" type="email" required />
+</div>
+</div>
+
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block uppercase" for="password">
+                        Password
+                    </label>
+<div class="neon-border bg-surface-container-lowest flex items-center px-4 py-3 group">
+<input class="bg-transparent border-none w-full text-on-surface placeholder:text-outline p-0 focus:ring-0" id="password" placeholder="••••••••" type="password" required />
+<button class="text-outline hover:text-primary-container transition-colors ml-2" onclick="togglePassword('password')" type="button">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Konfirmasi Password -->
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block uppercase" for="confirm-password">
+                        Konfirmasi Password
+                    </label>
+<div class="neon-border bg-surface-container-lowest flex items-center px-4 py-3 group">
+<input class="bg-transparent border-none w-full text-on-surface placeholder:text-outline p-0 focus:ring-0" id="confirm-password" placeholder="••••••••" type="password" required />
+<button class="text-outline hover:text-primary-container transition-colors ml-2" onclick="togglePassword('confirm-password')" type="button">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Large Primary Button -->
+<button class="w-full bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-headline-md text-headline-md py-4 rounded transition-all duration-200 active:scale-95 shadow-[0_0_15px_rgba(0,212,255,0.2)] mt-4" type="submit">
+                    Daftar
+                </button>
+</form>
+<!-- Footer Link -->
+<div class="mt-8">
+<p class="font-body-md text-on-surface-variant">
+                    Sudah punya akun? 
+                    <a class="text-primary-container hover:underline font-medium transition-all" href="/login.html">
+                        Masuk di sini
+                    </a>
+</p>
+</div>
+</div>
+<!-- Atmospheric Tagline -->
+<div class="mt-8 text-center">
+<p class="font-label-sm text-label-sm text-outline tracking-widest uppercase opacity-60">
+                Authorized Access Only • System 01-NC
+            </p>
+</div>
+</main>
+
+<script>
+    function togglePassword(id) {
+        const input = document.getElementById(id);
+        const icon = input.nextElementSibling.querySelector('.material-symbols-outlined');
+        if (input.type === "password") {
+            input.type = "text";
+            icon.textContent = "visibility_off";
+        } else {
+            input.type = "password";
+            icon.textContent = "visibility";
+        }
+    }
+
+    function showNotif(pesan, tipe = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        
+        let borderColor = 'border-[#00d4ff]';
+        let bgColor = 'bg-[#00d4ff]/10';
+        let icon = 'check_circle';
+        let iconColor = 'text-[#00d4ff]';
+        let shadow = 'shadow-[0_0_15px_rgba(0,212,255,0.2)]';
+
+        if (tipe === 'error') {
+            borderColor = 'border-red-500'; bgColor = 'bg-red-500/10'; icon = 'warning'; iconColor = 'text-red-500'; shadow = 'shadow-[0_0_15px_rgba(239,68,68,0.2)]';
+        }
+
+        toast.className = `flex items-center gap-4 bg-[#111113] border ${borderColor} ${bgColor} p-4 rounded-lg ${shadow} transform transition-all duration-300 translate-x-[120%] opacity-0 pointer-events-auto`;
+        toast.innerHTML = `<span class="material-symbols-outlined ${iconColor} text-2xl">${icon}</span><p class="text-white text-sm font-bold tracking-wide">${pesan}</p>`;
+        container.appendChild(toast);
+
+        setTimeout(() => { toast.classList.remove('translate-x-[120%]', 'opacity-0'); toast.classList.add('translate-x-0', 'opacity-100'); }, 10);
+        setTimeout(() => { toast.classList.remove('translate-x-0', 'opacity-100'); toast.classList.add('translate-x-[120%]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const nama = document.getElementById('nama').value;
+        const no_hp = document.getElementById('no_hp').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        
+        if (password !== confirmPassword) {
+            showNotif('Password dan konfirmasi tidak cocok!', 'error');
+            return;
+        }
+
+        const btn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = btn.innerHTML;
+        btn.innerHTML = 'Memproses...';
+        btn.classList.add('opacity-80', 'cursor-wait');
+        
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nama, email, password, no_hp })
+            });
+            
+            const data = await res.json();
+            
+            if (data.success) {
+                showNotif('Pendaftaran Berhasil! Mengalihkan ke login...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 1500);
+            } else {
+                showNotif(data.message || 'Pendaftaran gagal!', 'error');
+                btn.innerHTML = originalBtnText;
+                btn.classList.remove('opacity-80', 'cursor-wait');
+            }
+        } catch (err) {
+            showNotif('Server Error. Silakan coba lagi nanti.', 'error');
+            btn.innerHTML = originalBtnText;
+            btn.classList.remove('opacity-80', 'cursor-wait');
+        }
+    });
+</script>
+</body></html>

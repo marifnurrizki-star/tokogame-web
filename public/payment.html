@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>NEO-STORE | Secure Payment</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Geist:wght@100;300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        :root { --neon-blue: #00d4ff; }
+        body { background-color: #0a0a0b; color: #e5e2e3; overflow-x: hidden; font-family: 'Geist', sans-serif;}
+        .glass-panel { background: rgba(19, 19, 20, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .cyber-grid { background-image: linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
+        .font-space { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: { colors: { primary: "#a8e8ff", "surface-container": "#201f20", "on-surface": "#e5e2e3", "on-surface-variant": "#bbc9cf" } }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col cyber-grid">
+
+    <nav class="sticky top-0 z-50 flex justify-between items-center px-8 py-4 w-full max-w-[1440px] mx-auto bg-[#131314]/75 backdrop-blur-xl border-b border-white/10 shadow-[0_0_15px_rgba(0,212,255,0.1)]">
+        <div class="flex flex-col gap-1">
+            <span class="font-space text-2xl font-bold tracking-tighter text-primary italic leading-none">NEO-STORE</span>
+            <span id="user-greeting" class="text-xs text-on-surface-variant mt-1 hidden">Hi, <span id="user-name-display" class="text-white font-bold"></span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="window.location.href='/index.html'" class="material-symbols-outlined text-primary hover:bg-white/5 p-2 rounded-full transition-all">shopping_cart</button>
+            <button class="material-symbols-outlined text-primary hover:bg-white/5 p-2 rounded-full transition-all">account_circle</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-4xl mx-auto px-6 py-12">
+        <nav class="flex items-center gap-4 mb-12">
+            <div class="flex items-center gap-2 text-on-surface-variant/60 text-sm"><span class="material-symbols-outlined text-[18px]">shopping_bag</span><span>Cart</span></div>
+            <span class="material-symbols-outlined text-on-surface-variant/30">chevron_right</span>
+            <div class="flex items-center gap-2 text-on-surface-variant/60 text-sm"><span class="material-symbols-outlined text-[18px]">local_shipping</span><span>Shipping</span></div>
+            <span class="material-symbols-outlined text-on-surface-variant/30">chevron_right</span>
+            <div class="flex items-center gap-2 text-primary text-sm"><span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">payments</span><span class="border-b border-primary pb-1">Payment</span></div>
+        </nav>
+
+        <header class="flex items-center gap-4 mb-10">
+            <div class="p-3 bg-[#00d4ff]/10 border border-primary/20 rounded-xl"><span class="material-symbols-outlined text-primary text-[32px]">credit_card</span></div>
+            <div>
+                <h1 class="font-space text-2xl font-bold text-on-surface">Pembayaran via Transfer Bank</h1>
+                <p class="text-xs text-on-surface-variant tracking-widest uppercase opacity-70">Secured Digital Transaction Protocol</p>
+            </div>
+        </header>
+
+        <div class="flex gap-4 mb-6">
+            <button id="btn-tab-bank" class="flex-1 py-3 bg-primary text-black font-bold rounded shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all">🏦 Transfer Bank</button>
+            <button id="btn-tab-qris" class="flex-1 py-3 bg-[#131314] border border-outline-variant text-on-surface-variant font-bold rounded hover:border-primary/50 transition-all">📱 QRIS</button>
+        </div>
+
+        <div id="tempat-bank" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-primary/50 transition-all">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20"><span class="material-symbols-outlined text-6xl">account_balance</span></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="font-space text-xl font-bold" id="bank-name">Memuat Bank...</span>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-xs text-on-surface-variant mb-1 uppercase opacity-60">Account Number</p>
+                        <div class="flex items-center justify-between bg-surface-container/50 p-3 rounded border border-white/5">
+                            <span class="text-lg text-primary tracking-widest" id="bank-rek">-</span>
+                            <button class="text-xs text-primary hover:text-white transition-colors flex items-center gap-1" onclick="copyTextToClipboard()"><span class="material-symbols-outlined text-[16px]">content_copy</span> Salin</button>
+                        </div>
+                    </div>
+                    <div><p class="text-xs text-on-surface-variant mb-1 uppercase opacity-60">Account Holder</p><p class="text-sm text-on-surface" id="bank-holder">-</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tempat-qris" class="hidden flex-col items-center justify-center glass-panel p-8 rounded-xl border border-primary/20 mb-8 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
+            <h3 class="font-space text-2xl text-primary font-bold mb-2">Scan QRIS</h3>
+            <p class="text-sm text-on-surface-variant mb-6 text-center max-w-sm">Buka aplikasi m-banking atau e-wallet Anda (Gopay, OVO, Dana, ShopeePay) dan scan QR Code di bawah ini.</p>
+            <div class="w-56 h-56 bg-white rounded-xl p-3 flex items-center justify-center shadow-[0_0_20px_rgba(0,212,255,0.15)] group-hover:shadow-[0_0_30px_rgba(0,212,255,0.3)] transition-all">
+                <img id="qris-img-display" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="QRIS" class="w-full h-full object-contain filter contrast-125">
+            </div>
+            <p class="mt-6 text-xs text-on-surface-variant uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/10">NMID: ID1029384756</p>
+        </div>
+
+        <div class="glass-panel p-10 rounded-xl border-2 border-dashed border-white/10 hover:border-primary/50 transition-colors group cursor-pointer text-center">
+            <input class="hidden" id="file-upload" type="file" accept="image/*"/>
+            <label class="cursor-pointer block" for="file-upload">
+                <div class="mb-4 inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#2a2a2b] group-hover:bg-primary/20 transition-colors">
+                    <span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary transition-colors">cloud_upload</span>
+                </div>
+                <h3 class="font-space text-xl font-bold mb-2">Upload Bukti Transfer</h3>
+                <p class="text-sm text-on-surface-variant mb-4">Klik atau seret foto di sini</p>
+                <span id="nama-file-terpilih" class="text-xs px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-on-surface-variant/60">(JPG, PNG, maks 5MB)</span>
+            </label>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between mt-12 gap-6">
+            <button onclick="window.location.href='/shipping.html'" class="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-4 text-sm text-on-surface-variant hover:text-white transition-colors"><span class="material-symbols-outlined">arrow_back</span> Kembali</button>
+            <button id="btn-kirim-pesanan" class="w-full sm:w-auto relative group">
+                <div class="absolute -inset-0.5 bg-primary rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
+                <div class="relative flex items-center justify-center gap-3 px-12 py-5 bg-primary text-black font-space text-xl font-bold rounded hover:scale-[1.02] active:scale-95 transition-all">
+                    <span>Kirim Pesanan</span>
+                    <span class="material-symbols-outlined font-bold">check</span>
+                </div>
+            </button>
+        </div>
+    </main>
+
+    <div class="fixed bottom-8 right-8 bg-primary text-black text-sm px-6 py-3 rounded-lg shadow-2xl opacity-0 translate-y-10 transition-all duration-300 pointer-events-none z-[100] flex items-center gap-2" id="toast">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span id="toast-message">Berhasil disalin</span>
+    </div>
+
+    <script>
+        // 1. Fitur Copy Text
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                document.getElementById('toast-message').innerText = "Berhasil disalin: " + text;
+                toast.classList.remove('opacity-0', 'translate-y-10');
+                toast.classList.add('opacity-100', 'translate-y-0');
+                setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-10'); toast.classList.remove('opacity-100', 'translate-y-0'); }, 3000);
+            });
+        }
+
+        // 2. Deteksi File Upload & Update Teks
+        const dropzone = document.querySelector('label[for="file-upload"]').parentElement;
+        const fileInput = document.getElementById('file-upload');
+        const teksFile = document.getElementById('nama-file-terpilih');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { dropzone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false); });
+        ['dragenter', 'dragover'].forEach(eventName => { dropzone.addEventListener(eventName, () => dropzone.classList.add('border-primary', 'bg-primary/5'), false); });
+        ['dragleave', 'drop'].forEach(eventName => { dropzone.addEventListener(eventName, () => dropzone.classList.remove('border-primary', 'bg-primary/5'), false); });
+
+        dropzone.addEventListener('drop', (e) => {
+            fileInput.files = e.dataTransfer.files; 
+            if(fileInput.files.length) teksFile.innerText = "✅ " + fileInput.files[0].name;
+        });
+        fileInput.addEventListener('change', () => {
+            if(fileInput.files.length) teksFile.innerText = "✅ " + fileInput.files[0].name;
+        });
+
+        // A0. Load Bank Settings
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userData = localStorage.getItem('userTokoGame');
+            if (!userData) {
+                window.location.replace('/login.html');
+                return;
+            }
+            const user = JSON.parse(userData);
+            const greeting = document.getElementById('user-greeting');
+            if(greeting) {
+                greeting.classList.remove('hidden');
+                document.getElementById('user-name-display').innerText = user.nama;
+            }
+
+            try {
+                const res = await fetch('/api/settings');
+                const conf = await res.json();
+                document.getElementById('bank-name').innerText = conf.bankName || 'Bank Utama';
+                document.getElementById('bank-rek').innerText = conf.accountNumber || '-';
+                document.getElementById('bank-holder').innerText = conf.accountHolder || '-';
+                if (conf.qrisImage) {
+                    document.getElementById('qris-img-display').src = '/' + conf.qrisImage;
+                }
+            } catch(e) { console.error('Gagal memuat setting bank'); }
+        });
+
+        // A1. Logika Tab Metode Bayar
+        let metodeBayarTerpilih = 'Transfer Bank';
+        
+        document.getElementById('btn-tab-bank').addEventListener('click', () => {
+            metodeBayarTerpilih = 'Transfer Bank';
+            document.getElementById('tempat-bank').classList.remove('hidden');
+            document.getElementById('tempat-bank').classList.add('grid');
+            document.getElementById('tempat-qris').classList.add('hidden');
+            document.getElementById('tempat-qris').classList.remove('flex');
+            
+            document.getElementById('btn-tab-bank').className = 'flex-1 py-3 bg-primary text-black font-bold rounded shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all';
+            document.getElementById('btn-tab-qris').className = 'flex-1 py-3 bg-[#131314] border border-outline-variant text-on-surface-variant font-bold rounded hover:border-primary/50 transition-all';
+        });
+
+        document.getElementById('btn-tab-qris').addEventListener('click', () => {
+            metodeBayarTerpilih = 'QRIS';
+            document.getElementById('tempat-bank').classList.add('hidden');
+            document.getElementById('tempat-bank').classList.remove('grid');
+            document.getElementById('tempat-qris').classList.remove('hidden');
+            document.getElementById('tempat-qris').classList.add('flex');
+            
+            document.getElementById('btn-tab-qris').className = 'flex-1 py-3 bg-primary text-black font-bold rounded shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all';
+            document.getElementById('btn-tab-bank').className = 'flex-1 py-3 bg-[#131314] border border-outline-variant text-on-surface-variant font-bold rounded hover:border-primary/50 transition-all';
+        });
+
+        function copyTextToClipboard() {
+            copyText(document.getElementById('bank-rek').innerText);
+        }
+
+        // 3. LOGIKA TEMBAK KE DATABASE SQL
+        const btnKirim = document.getElementById('btn-kirim-pesanan');
+
+        btnKirim.addEventListener('click', () => {
+            // A. Validasi Gambar
+            if (fileInput.files.length === 0) {
+                showNotif('Mohon unggah bukti transfer Anda!', 'error');
+                return;
+            }
+
+            // B. Tarik Data Estafet
+            const user = JSON.parse(localStorage.getItem('userTokoGame'));
+            const token = localStorage.getItem('tokenTokoGame');
+            const shippingData = JSON.parse(localStorage.getItem('tempShippingData'));
+
+            if (!user || !shippingData || !token) {
+                showNotif('Data pengiriman atau sesi tidak ditemukan!', 'error');
+                window.location.href = '/index.html';
+                return;
+            }
+
+            // C. Bungkus pakai FormData
+            const formData = new FormData();
+            formData.append('metode_bayar', metodeBayarTerpilih); 
+            formData.append('bukti_transfer', fileInput.files[0]);
+            formData.append('nama_penerima', shippingData.nama_penerima);
+            formData.append('no_hp', shippingData.no_hp);
+            formData.append('alamat', shippingData.alamat);
+            formData.append('metode_pengiriman', shippingData.metode_pengiriman);
+            formData.append('catatan', shippingData.catatan);
+
+            // D. Animasi Tombol
+            btnKirim.innerHTML = '<div class="relative flex items-center justify-center gap-3 px-12 py-5 bg-primary text-black font-space text-xl font-bold rounded opacity-70"><span>MENGIRIM...</span><span class="material-symbols-outlined animate-spin">refresh</span></div>';
+
+            // E. Kirim ke Server API
+            fetch('/api/checkout', { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData 
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.removeItem('tempShippingData'); // Bersihin memori
+                    localStorage.setItem('lastOrderId', data.order_id); // SIMPAN ID PESANAN
+                    window.location.href = '/success.html'; // Pindah ke halaman sukses!
+                } else {
+                    showNotif('Gagal: ' + data.message, 'error');
+                    window.location.reload();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showNotif('Gagal terhubung ke server', 'error');
+                window.location.reload();
+            });
+        });
+    </script>
+</body>
+</html>
