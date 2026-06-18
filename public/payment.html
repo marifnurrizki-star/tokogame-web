@@ -166,7 +166,8 @@
                 document.getElementById('bank-rek').innerText = conf.accountNumber || '-';
                 document.getElementById('bank-holder').innerText = conf.accountHolder || '-';
                 if (conf.qrisImage) {
-                    document.getElementById('qris-img-display').src = '/' + conf.qrisImage;
+                    const linkQris = conf.qrisImage.startsWith('http') || conf.qrisImage.startsWith('/') ? conf.qrisImage : '/' + conf.qrisImage;
+                    document.getElementById('qris-img-display').src = linkQris;
                 }
             } catch(e) { console.error('Gagal memuat setting bank'); }
         });

@@ -37,6 +37,9 @@ pool.connect()
     .then(async () => {
         console.log('✅ KONEKSI DATABASE POSTGRESQL BERHASIL!');
         try {
+            await pool.query('ALTER TABLE orders ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
+        } catch(e) { console.warn("Could not alter orders table for created_at"); }
+        try {
             const adminCheck = await pool.query("SELECT password FROM users WHERE email='admin@tokogame.com'");
             if (adminCheck.rows.length > 0 && adminCheck.rows[0].password === 'admin123') {
                 const hashed = await bcrypt.hash('admin123', 10);
@@ -153,6 +156,32 @@ app.get('/api/orders', verifyToken, isAdmin, async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         res.status(500).send('Error: ' + err.message);
+    }
+});
+
+// 3.5 JALUR LAPORAN PENJUALAN
+app.get('/api/reports/sales', verifyToken, isAdmin, async (req, res) => {
+    const { startDate, endDate } = req.query;
+    try {
+        let query = `
+            SELECT o.id, o.total_harga, o.status, o.created_at, u.nama as pembeli 
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE o.status != 'Dibatalkan' AND o.status != 'Ditolak'
+        `;
+        let params = [];
+        
+        if (startDate && endDate) {
+            query += ` AND DATE(o.created_at) >= $1 AND DATE(o.created_at) <= $2`;
+            params.push(startDate, endDate);
+        }
+        
+        query += ` ORDER BY o.created_at DESC`;
+        
+        const result = await pool.query(query, params);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error: ' + err.message });
     }
 });
 
