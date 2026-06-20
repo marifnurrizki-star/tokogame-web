@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(50) DEFAULT 'user',
     no_hp VARCHAR(50),
     reset_token VARCHAR(255),
-    reset_token_expires BIGINT
+    reset_token_expires BIGINT,
+    neo_credits INT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -20,7 +21,9 @@ CREATE TABLE IF NOT EXISTS products (
     deskripsi TEXT,
     gambar VARCHAR(255),
     kategori VARCHAR(100),
-    kondisi VARCHAR(50) DEFAULT 'Baru'
+    kondisi VARCHAR(50) DEFAULT 'Baru',
+    is_cyber_drop BOOLEAN DEFAULT false,
+    discount_price INT
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -56,6 +59,13 @@ CREATE TABLE IF NOT EXISTS wishlist (
     product_id INT REFERENCES products(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS promo_codes (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    discount_percent INT NOT NULL,
+    is_active BOOLEAN DEFAULT true
+);
+
 -- Insert data admin default
 INSERT INTO users (nama, email, password, role) 
 VALUES ('Admin', 'admin@tokogame.com', 'admin123', 'admin')
@@ -85,3 +95,4 @@ ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cart ENABLE ROW LEVEL SECURITY;
 ALTER TABLE wishlist ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE promo_codes ENABLE ROW LEVEL SECURITY;

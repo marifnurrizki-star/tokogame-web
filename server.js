@@ -104,12 +104,12 @@ app.get('/api/products', async (req, res) => {
 // 2. JALUR CHECKOUT SUPER MAXIMAL
 app.post('/api/checkout', verifyToken, upload.single('bukti_transfer'), async (req, res) => {
     try {
-        const { alamat, metode_bayar, catatan, no_hp, metode_pengiriman } = req.body;
+        const { alamat, metode_bayar, catatan, no_hp, metode_pengiriman, decryption_key, use_credits } = req.body;
         const buktiPath = req.file ? req.file.path : null;
 
         const userIdInt = parseInt(req.user.id);
 
-        const cartReq = await pool.query('SELECT c.jumlah, p.harga, p.stok, p.nama_produk, p.id as product_id FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $1', [userIdInt]);
+        const cartReq = await pool.query('SELECT c.jumlah, p.harga, p.stok, p.nama_produk, p.id as product_id, p.is_cyber_drop, p.discount_price FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = $1', [userIdInt]);
         const cartItems = cartReq.rows;
 
         if (cartItems.length === 0) return res.status(400).json({ success: false, message: 'Keranjang kosong!' });
@@ -121,8 +121,29 @@ app.post('/api/checkout', verifyToken, upload.single('bukti_transfer'), async (r
         }
 
         let total_harga = 0;
-        cartItems.forEach(item => total_harga += (item.harga * item.jumlah));
-        
+        cartItems.forEach(item => {
+            const hargaItem = (item.is_cyber_drop && item.discount_price) ? item.discount_price : item.harga;
+            total_harga += (hargaItem * item.jumlah);
+        });
+
+        if (decryption_key) {
+            const promoRes = await pool.query('SELECT discount_percent FROM promo_codes WHERE code = $1 AND is_active = true', [decryption_key]);
+            if (promoRes.rows.length > 0) {
+                total_harga = total_harga - (total_harga * promoRes.rows[0].discount_percent / 100);
+            }
+        }
+
+        let creditsToUse = 0;
+        if (use_credits === 'true' || use_credits === true) {
+            const userRes = await pool.query('SELECT neo_credits FROM users WHERE id = $1', [userIdInt]);
+            if (userRes.rows.length > 0) {
+                let availableCredits = userRes.rows[0].neo_credits;
+                let maxCreditDiscount = total_harga * 0.5;
+                creditsToUse = Math.floor(Math.min(availableCredits, maxCreditDiscount));
+                total_harga = total_harga - creditsToUse;
+            }
+        }
+        total_harga = Math.floor(total_harga);
         let finalAlamat = alamat || '';
         if (metode_pengiriman === 'Ambil Langsung') {
             finalAlamat = 'Pesanan ambil langsung di toko';
@@ -136,11 +157,16 @@ app.post('/api/checkout', verifyToken, upload.single('bukti_transfer'), async (r
         const newOrderId = orderResult.rows[0].id;
 
         for (let item of cartItems) {
-            await pool.query('INSERT INTO order_items (order_id, product_id, jumlah, harga_satuan) VALUES ($1, $2, $3, $4)', [newOrderId, item.product_id, item.jumlah, item.harga]);
+            const hargaItem = (item.is_cyber_drop && item.discount_price) ? item.discount_price : item.harga;
+            await pool.query('INSERT INTO order_items (order_id, product_id, jumlah, harga_satuan) VALUES ($1, $2, $3, $4)', [newOrderId, item.product_id, item.jumlah, hargaItem]);
             await pool.query('UPDATE products SET stok = stok - $1 WHERE id = $2', [item.jumlah, item.product_id]);
         }
 
         await pool.query('DELETE FROM cart WHERE user_id = $1', [userIdInt]);
+
+        const cashback = Math.floor(total_harga * 0.05);
+        const netCreditsChange = cashback - creditsToUse;
+        await pool.query('UPDATE users SET neo_credits = neo_credits + $1 WHERE id = $2', [netCreditsChange, userIdInt]);
 
         res.json({ success: true, message: 'Checkout berhasil!', order_id: newOrderId });
     } catch (err) {
@@ -230,15 +256,17 @@ app.put('/api/orders/:id', verifyToken, async (req, res) => {
 
 // 5. JALUR TAMBAH GAME BARU
 app.post('/api/products', verifyToken, isAdmin, upload.single('gambarGame'), async (req, res) => {
-    const { nama_produk, harga, stok, deskripsi, kategori, kondisi } = req.body;
+    const { nama_produk, harga, stok, deskripsi, kategori, kondisi, is_cyber_drop, discount_price } = req.body;
     const linkGambar = req.file ? req.file.path : '';
     const kondisiVal = kondisi || 'Baru';
+    const isCyberDropVal = is_cyber_drop === 'true' || is_cyber_drop === true;
+    const discountPriceVal = discount_price ? parseInt(discount_price) : null;
 
     try {
         await pool.query(`
-            INSERT INTO products (nama_produk, harga, stok, deskripsi, gambar, kategori, kondisi)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `, [nama_produk, harga, stok, deskripsi, linkGambar, kategori, kondisiVal]);
+            INSERT INTO products (nama_produk, harga, stok, deskripsi, gambar, kategori, kondisi, is_cyber_drop, discount_price)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `, [nama_produk, harga, stok, deskripsi, linkGambar, kategori, kondisiVal, isCyberDropVal, discountPriceVal]);
         res.json({ success: true, message: 'Game baru ditambahkan!' });
     } catch (err) {
         console.error('❌ Error tambah produk:', err);
@@ -249,15 +277,17 @@ app.post('/api/products', verifyToken, isAdmin, upload.single('gambarGame'), asy
 // 5.5 JALUR EDIT PRODUK
 app.put('/api/products/:id', verifyToken, isAdmin, upload.single('gambarGame'), async (req, res) => {
     const idGame = parseInt(req.params.id);
-    const { nama_produk, harga, stok, deskripsi, kategori, kondisi } = req.body;
+    const { nama_produk, harga, stok, deskripsi, kategori, kondisi, is_cyber_drop, discount_price } = req.body;
     const kondisiVal = kondisi || 'Baru';
+    const isCyberDropVal = is_cyber_drop === 'true' || is_cyber_drop === true;
+    const discountPriceVal = discount_price ? parseInt(discount_price) : null;
 
     try {
         if (req.file) {
             const linkGambarBaru = req.file.path;
-            await pool.query('UPDATE products SET nama_produk = $1, harga = $2, stok = $3, deskripsi = $4, gambar = $5, kategori = $6, kondisi = $7 WHERE id = $8', [nama_produk, harga, stok, deskripsi, linkGambarBaru, kategori, kondisiVal, idGame]);
+            await pool.query('UPDATE products SET nama_produk = $1, harga = $2, stok = $3, deskripsi = $4, gambar = $5, kategori = $6, kondisi = $7, is_cyber_drop = $8, discount_price = $9 WHERE id = $10', [nama_produk, harga, stok, deskripsi, linkGambarBaru, kategori, kondisiVal, isCyberDropVal, discountPriceVal, idGame]);
         } else {
-            await pool.query('UPDATE products SET nama_produk = $1, harga = $2, stok = $3, deskripsi = $4, kategori = $5, kondisi = $6 WHERE id = $7', [nama_produk, harga, stok, deskripsi, kategori, kondisiVal, idGame]);
+            await pool.query('UPDATE products SET nama_produk = $1, harga = $2, stok = $3, deskripsi = $4, kategori = $5, kondisi = $6, is_cyber_drop = $7, discount_price = $8 WHERE id = $9', [nama_produk, harga, stok, deskripsi, kategori, kondisiVal, isCyberDropVal, discountPriceVal, idGame]);
         }
         res.json({ success: true, message: 'Software data updated!' });
     } catch (err) {
@@ -470,7 +500,7 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const result = await pool.query('SELECT id, nama, email, role, password as hash FROM users WHERE email = $1', [email]);
+        const result = await pool.query('SELECT id, nama, email, role, password as hash, neo_credits FROM users WHERE email = $1', [email]);
         if (result.rows.length > 0) {
             const user = result.rows[0];
             const isMatch = await bcrypt.compare(password, user.hash);
@@ -480,7 +510,7 @@ app.post('/api/login', async (req, res) => {
                     await pool.query('UPDATE users SET password = $1 WHERE id = $2', [newHash, user.id]);
                 }
                 const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
-                res.json({ success: true, message: 'Login berhasil!', data: { id: user.id, nama: user.nama, email: user.email, role: user.role }, token: token });
+                res.json({ success: true, message: 'Login berhasil!', data: { id: user.id, nama: user.nama, email: user.email, role: user.role, neo_credits: user.neo_credits }, token: token });
                 return;
             }
         }
@@ -575,7 +605,7 @@ app.post('/api/reset-password', async (req, res) => {
 // --- JALUR PROFIL USER ---
 app.get('/api/user/profile', verifyToken, async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, nama, email, no_hp FROM users WHERE id = $1', [parseInt(req.user.id)]);
+        const result = await pool.query('SELECT id, nama, email, no_hp, neo_credits FROM users WHERE id = $1', [parseInt(req.user.id)]);
         if (result.rows.length > 0) {
             res.json({ success: true, data: result.rows[0] });
         } else {
@@ -730,6 +760,50 @@ app.put('/api/users/:id/role', verifyToken, isAdmin, async (req, res) => {
         res.json({ success: true, message: 'Role user berhasil diperbarui menjadi ' + role });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Gagal mengubah role user: ' + err.message });
+    }
+});
+
+// --- JALUR PROMO CODES (DECRYPTION KEYS) ---
+app.post('/api/verify-decryption-key', verifyToken, async (req, res) => {
+    const { code } = req.body;
+    try {
+        const result = await pool.query('SELECT discount_percent FROM promo_codes WHERE code = $1 AND is_active = true', [code]);
+        if (result.rows.length > 0) {
+            res.json({ success: true, discount_percent: result.rows[0].discount_percent });
+        } else {
+            res.json({ success: false, message: 'Decryption Key tidak valid atau sudah tidak aktif!' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error server' });
+    }
+});
+
+app.get('/api/admin/promo_codes', verifyToken, isAdmin, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM promo_codes ORDER BY id DESC');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error fetching promo codes' });
+    }
+});
+
+app.post('/api/admin/promo_codes', verifyToken, isAdmin, async (req, res) => {
+    const { code, discount_percent } = req.body;
+    try {
+        await pool.query('INSERT INTO promo_codes (code, discount_percent) VALUES ($1, $2)', [code, discount_percent]);
+        res.json({ success: true, message: 'Decryption Key berhasil ditambahkan!' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Gagal menambahkan Decryption Key' });
+    }
+});
+
+app.delete('/api/admin/promo_codes/:id', verifyToken, isAdmin, async (req, res) => {
+    const idPromo = parseInt(req.params.id);
+    try {
+        await pool.query('DELETE FROM promo_codes WHERE id = $1', [idPromo]);
+        res.json({ success: true, message: 'Decryption Key berhasil dihapus!' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Gagal menghapus Decryption Key' });
     }
 });
 

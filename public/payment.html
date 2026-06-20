@@ -87,6 +87,43 @@
             <p class="mt-6 text-xs text-on-surface-variant uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/10">NMID: ID1029384756</p>
         </div>
 
+        <div class="glass-panel p-6 rounded-xl border border-primary/20 mb-8">
+            <h3 class="font-space text-xl text-primary font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined">receipt_long</span> Order Summary & Cyber Enhancements</h3>
+            
+            <div class="flex justify-between items-center mb-2 pb-2 border-b border-white/10">
+                <span class="text-sm text-on-surface-variant">Total Pesanan:</span>
+                <span id="payment-total-awal" class="font-bold text-lg text-white">Rp 0</span>
+            </div>
+
+            <div class="mt-4 space-y-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs text-[#ecb1ff] uppercase tracking-widest font-bold">Input Decryption Key</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-promo" placeholder="Kode Promo" class="bg-surface-container border border-outline-variant p-3 rounded text-white focus:border-[#ecb1ff] outline-none flex-grow uppercase font-mono tracking-widest">
+                        <button type="button" onclick="terapkanPromo()" class="px-4 bg-[#ecb1ff]/20 text-[#ecb1ff] font-bold rounded border border-[#ecb1ff]/50 hover:bg-[#ecb1ff] hover:text-black transition-colors">Verifikasi</button>
+                    </div>
+                    <p id="promo-msg" class="text-xs text-[#00d4ff] mt-1 hidden">Decryption Key Diterima: -<span id="promo-percent">0</span>%</p>
+                </div>
+
+                <div class="flex items-center justify-between bg-surface-container/50 p-4 rounded border border-outline-variant">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined text-[#00d4ff] text-[18px]">bolt</span> Neo Credits</span>
+                        <span class="text-xs text-on-surface-variant mt-1">Saldo Anda: <span id="payment-neo-credits" class="text-[#00d4ff] font-bold">0</span></span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="use-credits-checkbox" class="sr-only peer" onchange="hitungUlangTotal()">
+                        <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00d4ff]"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mt-6 pt-4 border-t border-primary/30">
+                <span class="font-space text-lg text-primary font-bold">Total Pembayaran:</span>
+                <span id="payment-total-akhir" class="font-space text-2xl font-bold text-primary">Rp 0</span>
+            </div>
+            <p class="text-[10px] text-on-surface-variant text-right mt-1">*Diskon maksimal Neo Credits adalah 50% dari total.</p>
+        </div>
+
         <div class="glass-panel p-10 rounded-xl border-2 border-dashed border-white/10 hover:border-primary/50 transition-colors group cursor-pointer text-center">
             <input class="hidden" id="file-upload" type="file" accept="image/*"/>
             <label class="cursor-pointer block" for="file-upload">
@@ -170,7 +207,97 @@
                     document.getElementById('qris-img-display').src = linkQris;
                 }
             } catch(e) { console.error('Gagal memuat setting bank'); }
+
+            // Fetch Profile & Cart to calculate totals
+            await fetchProfileData();
+            await fetchCartData();
         });
+
+        let totalAwal = 0;
+        let discountPercent = 0;
+        let maxCredits = 0;
+        let appliedPromoCode = '';
+
+        async function fetchProfileData() {
+            const token = localStorage.getItem('tokenTokoGame');
+            if(!token) return;
+            try {
+                const res = await fetch('/api/user/profile', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if(data.success) {
+                    maxCredits = data.data.neo_credits || 0;
+                    document.getElementById('payment-neo-credits').innerText = new Intl.NumberFormat('id-ID').format(maxCredits);
+                }
+            } catch(e) { console.error('Gagal memuat profile'); }
+        }
+
+        async function fetchCartData() {
+            const user = JSON.parse(localStorage.getItem('userTokoGame'));
+            const token = localStorage.getItem('tokenTokoGame');
+            if(!user || !token) return;
+            try {
+                const res = await fetch(`/api/cart/${user.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if(res.ok) {
+                    const cartItems = await res.json();
+                    let t = 0;
+                    cartItems.forEach(item => {
+                        const harga = (item.is_cyber_drop && item.discount_price) ? item.discount_price : item.harga;
+                        t += (harga * item.jumlah);
+                    });
+                    totalAwal = t;
+                    hitungUlangTotal();
+                }
+            } catch(e) { console.error('Gagal memuat keranjang'); }
+        }
+
+        async function terapkanPromo() {
+            const code = document.getElementById('input-promo').value.trim().toUpperCase();
+            if(!code) return;
+            const token = localStorage.getItem('tokenTokoGame');
+            try {
+                const res = await fetch('/api/verify-decryption-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ code })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    discountPercent = data.discount_percent;
+                    appliedPromoCode = code;
+                    document.getElementById('promo-msg').classList.remove('hidden');
+                    document.getElementById('promo-percent').innerText = discountPercent;
+                    hitungUlangTotal();
+                } else {
+                    alert(data.message);
+                    discountPercent = 0;
+                    appliedPromoCode = '';
+                    document.getElementById('promo-msg').classList.add('hidden');
+                    hitungUlangTotal();
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function hitungUlangTotal() {
+            document.getElementById('payment-total-awal').innerText = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(totalAwal);
+            
+            let t = totalAwal;
+            
+            // Apply Promo
+            if(discountPercent > 0) {
+                t = t - (t * discountPercent / 100);
+            }
+
+            // Apply Credits
+            const useCredits = document.getElementById('use-credits-checkbox').checked;
+            if(useCredits) {
+                let maxCreditDiscount = t * 0.5;
+                let creditsToUse = Math.floor(Math.min(maxCredits, maxCreditDiscount));
+                t = t - creditsToUse;
+            }
+            
+            t = Math.floor(t);
+            document.getElementById('payment-total-akhir').innerText = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(t);
+        }
 
         // A1. Logika Tab Metode Bayar
         let metodeBayarTerpilih = 'Transfer Bank';
@@ -231,6 +358,8 @@
             formData.append('alamat', shippingData.alamat);
             formData.append('metode_pengiriman', shippingData.metode_pengiriman);
             formData.append('catatan', shippingData.catatan);
+            if(appliedPromoCode) formData.append('decryption_key', appliedPromoCode);
+            formData.append('use_credits', document.getElementById('use-credits-checkbox').checked);
 
             // D. Animasi Tombol
             btnKirim.innerHTML = '<div class="relative flex items-center justify-center gap-3 px-12 py-5 bg-primary text-black font-space text-xl font-bold rounded opacity-70"><span>MENGIRIM...</span><span class="material-symbols-outlined animate-spin">refresh</span></div>';

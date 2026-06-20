@@ -187,7 +187,18 @@
                 document.getElementById('detail-category').innerText = `Platform: ${product.kategori || 'Digital'}`;
                 document.getElementById('detail-condition').innerText = `Condition: ${product.kondisi || 'Baru'}`;
                 document.getElementById('detail-stock').innerText = `Stock: ${product.stok} tersisa`;
-                document.getElementById('detail-price').innerText = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(product.harga);
+                if(product.is_cyber_drop && product.discount_price) {
+                    const discountRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(product.discount_price);
+                    document.getElementById('detail-price').innerHTML = `
+                        <div class="flex items-baseline gap-4">
+                            <span class="text-lg text-on-surface-variant line-through font-normal">${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(product.harga)}</span>
+                            <span class="text-[#ecb1ff] font-bold drop-shadow-[0_0_10px_rgba(236,177,255,0.5)]">${discountRp}</span>
+                        </div>
+                    `;
+                    document.getElementById('bc-title').insertAdjacentHTML('afterend', '<span class="ml-2 bg-[#ecb1ff] text-black text-[10px] font-bold px-2 py-1 rounded tracking-widest uppercase shadow-[0_0_10px_rgba(236,177,255,0.5)]">Cyber Drop</span>');
+                } else {
+                    document.getElementById('detail-price').innerText = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(product.harga);
+                }
                 
                 // Rapihin format deskripsi biar enter-nya kebaca
                 const formattedDesc = (product.deskripsi || 'Tidak ada data deskripsi.').replace(/\n/g, '<br>');

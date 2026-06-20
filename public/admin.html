@@ -118,6 +118,10 @@
                 <span class="material-symbols-outlined">group</span>
                 <span class="font-label-md">Users</span>
             </a>
+            <a id="nav-promo" onclick="switchTab('promo'); fetchPromo();" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
+                <span class="material-symbols-outlined">vpn_key</span>
+                <span class="font-label-md">Promo Codes</span>
+            </a>
             <div class="mt-8 px-4 py-2"><p class="font-label-sm text-outline uppercase">System</p></div>
             <a id="nav-settings" onclick="switchTab('settings')" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200 cursor-pointer">
                 <span class="material-symbols-outlined">settings</span>
@@ -285,6 +289,26 @@
                                             <input type="number" id="stok" class="w-full bg-[#18181b] border border-outline-variant/50 rounded p-3 text-white focus:border-[#00d4ff] outline-none transition-colors" placeholder="3" required>
                                         </div>
                                     </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-[#ecb1ff] text-xs tracking-wider mb-2 uppercase">Cyber Drop (Diskon)</label>
+                                            <div class="flex items-center h-[50px]">
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox" id="is_cyber_drop" class="sr-only peer">
+                                                  <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ecb1ff]"></div>
+                                                  <span class="ml-3 text-sm font-medium text-white">Aktifkan</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[#ecb1ff] text-xs tracking-wider mb-2 uppercase">Harga Diskon (Rp)</label>
+                                            <div class="relative">
+                                                <span class="absolute left-3 top-3 text-on-surface-variant">Rp</span>
+                                                <input type="number" id="discount_price" class="w-full bg-[#18181b] border border-outline-variant/50 rounded p-3 pl-10 text-white focus:border-[#ecb1ff] outline-none transition-colors" placeholder="650000">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div>
@@ -368,6 +392,26 @@
                                         <div>
                                             <label class="block text-[#00d4ff] text-xs tracking-wider mb-2 uppercase">Stok</label>
                                             <input type="number" id="edit_stok" class="w-full bg-[#18181b] border border-outline-variant/50 rounded p-3 text-white focus:border-[#00d4ff] outline-none transition-colors" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-[#ecb1ff] text-xs tracking-wider mb-2 uppercase">Cyber Drop (Diskon)</label>
+                                            <div class="flex items-center h-[50px]">
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox" id="edit_is_cyber_drop" class="sr-only peer">
+                                                  <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ecb1ff]"></div>
+                                                  <span class="ml-3 text-sm font-medium text-white">Aktifkan</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[#ecb1ff] text-xs tracking-wider mb-2 uppercase">Harga Diskon (Rp)</label>
+                                            <div class="relative">
+                                                <span class="absolute left-3 top-3 text-on-surface-variant">Rp</span>
+                                                <input type="number" id="edit_discount_price" class="w-full bg-[#18181b] border border-outline-variant/50 rounded p-3 pl-10 text-white focus:border-[#ecb1ff] outline-none transition-colors">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -583,6 +627,45 @@
                             </div>
                             <button id="save-admin-security" type="button" class="mt-2 px-4 py-2 border border-error text-error rounded hover:bg-error hover:text-black transition-colors w-full font-bold mt-8">Simpan Security</button>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-promo" class="admin-view hidden animate-fade-in space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-outline-variant pb-6">
+                    <div>
+                        <h2 class="text-2xl font-headline-md font-bold text-white mb-2">Decryption Keys</h2>
+                        <p class="text-on-surface-variant font-body-md max-w-2xl">Manajemen kode promo eksklusif (Decryption Keys) untuk diskon Cyberpunk.</p>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container border border-outline-variant rounded-xl p-6 mb-6">
+                    <h3 class="font-bold text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined">add_circle</span> Tambah Key Baru</h3>
+                    <form id="add-promo-form" class="flex flex-col md:flex-row gap-4">
+                        <div class="flex-grow">
+                            <input id="newPromoCode" type="text" placeholder="Masukkan Kode (cth: CYBER10)" class="w-full bg-surface border border-outline-variant p-3 rounded text-white focus:border-primary outline-none uppercase font-bold tracking-widest">
+                        </div>
+                        <div class="w-32">
+                            <input id="newPromoDiscount" type="number" placeholder="Diskon (%)" min="1" max="100" class="w-full bg-surface border border-outline-variant p-3 rounded text-white focus:border-primary outline-none">
+                        </div>
+                        <button type="button" onclick="tambahPromo()" class="px-6 py-3 bg-primary/20 text-primary border border-primary/50 rounded hover:bg-primary hover:text-black transition-colors font-bold whitespace-nowrap">Generate Key</button>
+                    </form>
+                </div>
+
+                <div class="bg-surface-container border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-outline-variant bg-surface-container-highest/50">
+                                    <th class="p-4 font-label-md text-on-surface-variant uppercase tracking-widest">Kode (Decryption Key)</th>
+                                    <th class="p-4 font-label-md text-on-surface-variant uppercase tracking-widest text-center">Diskon (%)</th>
+                                    <th class="p-4 font-label-md text-on-surface-variant uppercase tracking-widest text-center w-24">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="promo-table-body" class="font-body-md text-white divide-y divide-outline-variant">
+                                <!-- Data promo dirender di sini -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -943,6 +1026,8 @@
             formData.append('nama_produk', document.getElementById('nama_produk').value);
             formData.append('harga', document.getElementById('harga').value);
             formData.append('stok', document.getElementById('stok').value);
+            formData.append('is_cyber_drop', document.getElementById('is_cyber_drop').checked);
+            formData.append('discount_price', document.getElementById('discount_price').value || '');
             const platforms = Array.from(document.querySelectorAll('#platform-selector button[data-selected="true"]')).map(el => el.dataset.platform);
             formData.append('kategori', platforms.join(', '));
             const kondisiChecked = document.querySelector('input[name="kondisi"]:checked');
@@ -1019,6 +1104,9 @@
                 document.getElementById('edit_stok').value = game.stok;
                 document.getElementById('edit_deskripsi').value = game.deskripsi;
                 
+                document.getElementById('edit_is_cyber_drop').checked = game.is_cyber_drop || false;
+                document.getElementById('edit_discount_price').value = game.discount_price || '';
+                
                 // Select Kondisi
                 if(game.kondisi === 'Bekas') {
                     document.querySelector('input[name="edit_kondisi"][value="Bekas"]').checked = true;
@@ -1065,6 +1153,8 @@
             formData.append('harga', document.getElementById('edit_harga').value);
             formData.append('stok', document.getElementById('edit_stok').value);
             formData.append('deskripsi', document.getElementById('edit_deskripsi').value);
+            formData.append('is_cyber_drop', document.getElementById('edit_is_cyber_drop').checked);
+            formData.append('discount_price', document.getElementById('edit_discount_price').value || '');
             
             const fileInput = document.getElementById('edit_gambarGame');
             if(fileInput.files.length > 0) {
@@ -1458,6 +1548,91 @@
 
             } catch(err) {
                 tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-error">Gagal koneksi ke server</td></tr>';
+            }
+        }
+
+        // ==========================================
+        // FITUR PROMO CODES (DECRYPTION KEYS)
+        // ==========================================
+        async function fetchPromo() {
+            const token = localStorage.getItem('tokenTokoGame');
+            if(!token) return logoutAdmin();
+
+            try {
+                const res = await fetch('/api/admin/promo_codes', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const tbody = document.getElementById('promo-table-body');
+                tbody.innerHTML = '';
+                
+                if(data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-on-surface-variant">Belum ada Decryption Keys.</td></tr>';
+                    return;
+                }
+
+                data.forEach(p => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-surface transition-colors">
+                            <td class="p-4 font-bold text-primary font-mono tracking-wider">${p.code}</td>
+                            <td class="p-4 text-center font-bold text-white">${p.discount_percent}%</td>
+                            <td class="p-4 text-center">
+                                <button onclick="hapusPromo(${p.id}, '${p.code}')" class="text-error hover:text-white transition-colors" title="Hapus Key">
+                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch(err) {
+                console.error(err);
+            }
+        }
+
+        async function tambahPromo() {
+            const token = localStorage.getItem('tokenTokoGame');
+            const code = document.getElementById('newPromoCode').value.trim().toUpperCase();
+            const percent = parseInt(document.getElementById('newPromoDiscount').value);
+
+            if(!code || !percent || percent <= 0 || percent > 100) {
+                return showToast('Masukkan kode dan persentase diskon yang valid (1-100)', 'error');
+            }
+
+            try {
+                const res = await fetch('/api/admin/promo_codes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ code, discount_percent: percent })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    showToast(data.message, 'success');
+                    document.getElementById('newPromoCode').value = '';
+                    document.getElementById('newPromoDiscount').value = '';
+                    fetchPromo();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch(err) {
+                showToast('Gagal terhubung ke server', 'error');
+            }
+        }
+
+        async function hapusPromo(id, code) {
+            if(!confirm(`Hapus permanen Decryption Key [${code}]?`)) return;
+            const token = localStorage.getItem('tokenTokoGame');
+            try {
+                const res = await fetch(`/api/admin/promo_codes/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    showToast(data.message, 'success');
+                    fetchPromo();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch(err) {
+                showToast('Gagal terhubung ke server', 'error');
             }
         }
 
