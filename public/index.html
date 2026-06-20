@@ -46,10 +46,35 @@
                     <span class="material-symbols-outlined">shopping_cart</span>
                 </button>
                 <button id="btn-login" class="px-4 py-2 bg-[#00d4ff]/10 text-[#00d4ff] border border-[#00d4ff]/50 rounded hover:bg-[#00d4ff] hover:text-black transition-colors text-sm font-bold tracking-wider" onclick="bukaLogin()">LOGIN</button>
-                <button id="btn-setting" class="hidden text-gray-400 hover:text-[#00d4ff] transition relative" onclick="window.location.href='/setting.html'" title="Pengaturan Akun">
-                    <span class="material-symbols-outlined">manage_accounts</span>
-                </button>
-                <button id="btn-logout" class="hidden px-4 py-2 border border-red-500/50 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors text-sm font-bold tracking-wider" onclick="logoutUser()">LOGOUT</button>
+                
+                <!-- PROFILE DROPDOWN -->
+                <div id="profile-dropdown-container" class="relative group hidden">
+                    <button class="p-2 text-gray-400 hover:text-[#00d4ff] hover:bg-white/5 rounded-full transition-all active:scale-95 flex items-center justify-center">
+                        <span class="material-symbols-outlined">account_circle</span>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-64 glass-panel border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-4">
+                        <div class="mb-4 border-b border-white/10 pb-3">
+                            <p id="dd-nama" class="font-bold text-white tracking-wide text-sm truncate">User Name</p>
+                            <p id="dd-email" class="text-xs text-gray-400 truncate">user@email.com</p>
+                            <p id="dd-hp" class="text-xs text-gray-400 mt-1 truncate">08123...</p>
+                        </div>
+                        <div class="mb-4 flex items-center justify-between bg-[#00d4ff]/10 border border-[#00d4ff]/20 p-2 rounded">
+                            <div class="flex items-center gap-1 text-[#00d4ff]">
+                                <span class="material-symbols-outlined text-[16px]">bolt</span>
+                                <span class="text-xs font-bold uppercase tracking-widest">Neo Points</span>
+                            </div>
+                            <span id="dd-points" class="font-bold text-white text-sm">0</span>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="window.location.href='/setting.html'" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors text-left">
+                                <span class="material-symbols-outlined text-sm">settings</span> Pengaturan Akun
+                            </button>
+                            <button onclick="logoutUser()" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:text-white hover:bg-red-500/80 rounded transition-colors text-left font-bold">
+                                <span class="material-symbols-outlined text-sm">logout</span> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -160,11 +185,11 @@
                     return; 
                 }
                 document.getElementById('btn-login').classList.add('hidden');
-                document.getElementById('btn-logout').classList.remove('hidden');
-                document.getElementById('btn-setting').classList.remove('hidden');
+                document.getElementById('profile-dropdown-container').classList.remove('hidden');
                 document.getElementById('user-greeting').classList.remove('hidden');
                 document.getElementById('user-name-display').innerText = user.nama;
                 fetchWishlist();
+                fetchProfileForDropdown();
             }
             
             tarikDataServer();
@@ -181,6 +206,25 @@
                     wishlist = await res.json();
                     updateWishlistBadge();
                     renderKatalog();
+                }
+            } catch(e) {}
+        }
+
+        async function fetchProfileForDropdown() {
+            const token = localStorage.getItem('tokenTokoGame');
+            if(!token) return;
+            try {
+                const res = await fetch('/api/user/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if(res.ok) {
+                    const response = await res.json();
+                    if(response.success) {
+                        document.getElementById('dd-nama').innerText = response.data.nama;
+                        document.getElementById('dd-email').innerText = response.data.email;
+                        document.getElementById('dd-hp').innerText = response.data.no_hp || '-';
+                        document.getElementById('dd-points').innerText = new Intl.NumberFormat('id-ID').format(response.data.neo_credits || 0);
+                    }
                 }
             } catch(e) {}
         }
