@@ -47,6 +47,14 @@
         <div class="cyber-card p-8 rounded-xl shadow-[0_0_20px_rgba(0,212,255,0.05)] relative overflow-hidden group">
             <div class="absolute top-0 right-0 w-32 h-32 bg-[#00d4ff]/5 rounded-bl-full -z-10 group-hover:bg-[#00d4ff]/10 transition-colors"></div>
             
+            <div class="mb-8 p-6 bg-[#00d4ff]/5 border border-[#00d4ff]/20 rounded-xl flex items-center justify-between">
+                <div>
+                    <h3 class="text-[#00d4ff] font-bold text-lg flex items-center gap-2"><span class="material-symbols-outlined">bolt</span> Neo Points</h3>
+                    <p class="text-xs text-gray-400 mt-1">Gunakan 100 Poin untuk Diskon 50% di Checkout</p>
+                </div>
+                <div class="text-3xl font-bold text-white tracking-wider" id="neo-points-display">0</div>
+            </div>
+
             <form id="settingForm" class="space-y-6">
                 <!-- Profil Info -->
                 <div class="space-y-4">
@@ -161,6 +169,7 @@
                     document.getElementById('nama').value = response.data.nama;
                     document.getElementById('email').value = response.data.email;
                     document.getElementById('no_hp').value = response.data.no_hp || '';
+                    document.getElementById('neo-points-display').innerText = new Intl.NumberFormat('id-ID').format(response.data.neo_credits || 0);
                 } else {
                     showNotif(response.message || 'Gagal memuat profil', 'error');
                 }

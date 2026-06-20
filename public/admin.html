@@ -216,9 +216,15 @@
                         <h2 class="text-xs text-primary tracking-widest uppercase mb-1">Inventory Control</h2>
                         <h3 class="text-2xl font-headline-md font-bold text-white">Kelola Produk</h3>
                     </div>
-                    <button onclick="switchTab('add-product')" class="px-6 py-2 bg-primary-container text-on-primary font-bold rounded hover:opacity-90 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(0,212,255,0.3)]">
-                        <span class="material-symbols-outlined text-sm">add</span> Tambah Produk
-                    </button>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center bg-surface-container border border-outline-variant rounded-lg p-2 focus-within:border-primary transition-colors w-64">
+                            <span class="material-symbols-outlined text-outline-variant mx-2">search</span>
+                            <input type="text" id="searchInventoryInput" placeholder="Cari Game..." class="bg-transparent text-white w-full outline-none font-mono text-sm" oninput="cariInventory()">
+                        </div>
+                        <button onclick="switchTab('add-product')" class="px-6 py-2 bg-primary-container text-on-primary font-bold rounded hover:opacity-90 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(0,212,255,0.3)]">
+                            <span class="material-symbols-outlined text-sm">add</span> Tambah Produk
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-surface-container border border-outline-variant rounded-xl overflow-hidden">
@@ -773,6 +779,7 @@
 
                 // --- SIMPAN DATA GLOBAL UNTUK FILTER ---
                 window._allOrders = orders;
+                window._allProducts = products;
 
                 // --- DASHBOARD (ANGKA) - Hanya hitung Selesai/Dikirim ---
                 let totalPendapatan = 0;
@@ -818,23 +825,7 @@
                 }
 
                 // --- INVENTORY TABEL ---
-                const tbodyProd = document.getElementById('admin-tempat-produk');
-                tbodyProd.innerHTML = '';
-                products.forEach(p => {
-                    const linkGambar = p.gambar ? (p.gambar.startsWith('http') || p.gambar.startsWith('/') ? p.gambar : '/' + p.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
-                    tbodyProd.innerHTML += `
-                        <tr class="hover:bg-surface transition-colors">
-                            <td class="p-4"><img src="${linkGambar}" class="w-12 h-12 rounded object-cover border border-outline-variant" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop'"></td>
-                            <td class="p-4 font-bold text-white">${p.nama_produk} <br><span class="text-xs text-on-surface-variant font-normal">${p.kategori || 'Game'}</span></td>
-                            <td class="p-4 ${p.stok <= 0 ? 'text-error font-bold' : 'text-on-surface-variant'}">${p.stok} Units</td>
-                            <td class="p-4 text-primary">${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(p.harga)}</td>
-                            <td class="p-4 text-center">
-                                <button onclick="bukaEditGame(${p.id})" class="px-3 py-1 border border-primary text-primary text-xs rounded hover:bg-primary hover:text-black transition-colors mr-2">EDIT</button>
-                                <button onclick="hapusGame(${p.id})" class="px-3 py-1 border border-error text-error text-xs rounded hover:bg-error hover:text-black transition-colors">HAPUS</button>
-                            </td>
-                        </tr>
-                    `;
-                });
+                renderInventoryTable(products);
 
                 // --- RENDER ORDERS TABEL (via fungsi) ---
                 renderOrdersTable(orders);
@@ -843,6 +834,39 @@
                 console.error("Gagal muat data admin:", err);
             }
         }
+
+        // --- FUNGSI RENDER INVENTORY TABEL ---
+        function renderInventoryTable(data) {
+            const tbodyProd = document.getElementById('admin-tempat-produk');
+            tbodyProd.innerHTML = '';
+            if (data.length === 0) {
+                tbodyProd.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-on-surface-variant">Tidak ada produk ditemukan.</td></tr>';
+                return;
+            }
+            data.forEach(p => {
+                const linkGambar = p.gambar ? (p.gambar.startsWith('http') || p.gambar.startsWith('/') ? p.gambar : '/' + p.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
+                tbodyProd.innerHTML += `
+                    <tr class="hover:bg-surface transition-colors">
+                        <td class="p-4"><img src="${linkGambar}" class="w-12 h-12 rounded object-cover border border-outline-variant" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop'"></td>
+                        <td class="p-4 font-bold text-white">${p.nama_produk} <br><span class="text-xs text-on-surface-variant font-normal">${p.kategori || 'Game'}</span></td>
+                        <td class="p-4 ${p.stok <= 0 ? 'text-error font-bold' : 'text-on-surface-variant'}">${p.stok} Units</td>
+                        <td class="p-4 text-primary">${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(p.harga)}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="bukaEditGame(${p.id})" class="px-3 py-1 border border-primary text-primary text-xs rounded hover:bg-primary hover:text-black transition-colors mr-2">EDIT</button>
+                            <button onclick="hapusGame(${p.id})" class="px-3 py-1 border border-error text-error text-xs rounded hover:bg-error hover:text-black transition-colors">HAPUS</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- FUNGSI PENCARIAN INVENTORY ---
+        function cariInventory() {
+            const keyword = document.getElementById('searchInventoryInput').value.toLowerCase();
+            const filtered = window._allProducts.filter(p => p.nama_produk.toLowerCase().includes(keyword));
+            renderInventoryTable(filtered);
+        }
+
 
         // --- FUNGSI RENDER TABEL ORDERS ---
         function renderOrdersTable(orders) {

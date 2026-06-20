@@ -107,13 +107,16 @@
 
                 <div class="flex items-center justify-between bg-surface-container/50 p-4 rounded border border-outline-variant">
                     <div class="flex flex-col">
-                        <span class="text-sm font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined text-[#00d4ff] text-[18px]">bolt</span> Neo Credits</span>
+                        <span class="text-sm font-bold text-white flex items-center gap-2"><span class="material-symbols-outlined text-[#00d4ff] text-[18px]">bolt</span> Neo Points</span>
                         <span class="text-xs text-on-surface-variant mt-1">Saldo Anda: <span id="payment-neo-credits" class="text-[#00d4ff] font-bold">0</span></span>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="use-credits-checkbox" class="sr-only peer" onchange="hitungUlangTotal()">
-                        <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00d4ff]"></div>
-                    </label>
+                    <div id="credits-selector-container" class="hidden">
+                        <select id="use-credits-select" class="bg-surface-container-high border border-outline-variant text-white text-xs p-2 rounded focus:border-[#00d4ff] outline-none" onchange="hitungUlangTotal()">
+                            <option value="">-- Jangan Gunakan Poin --</option>
+                        </select>
+                        <p class="text-[9px] text-[#00d4ff] mt-1 text-right">Tukar 100 Poin = Diskon 50%</p>
+                    </div>
+                    <div id="credits-not-enough" class="text-xs text-on-surface-variant/50 hidden">Butuh minimal 100 Poin</div>
                 </div>
             </div>
 
@@ -121,7 +124,7 @@
                 <span class="font-space text-lg text-primary font-bold">Total Pembayaran:</span>
                 <span id="payment-total-akhir" class="font-space text-2xl font-bold text-primary">Rp 0</span>
             </div>
-            <p class="text-[10px] text-on-surface-variant text-right mt-1">*Diskon maksimal Neo Credits adalah 50% dari total.</p>
+            <p class="text-[10px] text-on-surface-variant text-right mt-1">*Diskon 50% Poin berlaku untuk 1 unit game yang dipilih.</p>
         </div>
 
         <div class="glass-panel p-10 rounded-xl border-2 border-dashed border-white/10 hover:border-primary/50 transition-colors group cursor-pointer text-center">
@@ -231,6 +234,8 @@
             } catch(e) { console.error('Gagal memuat profile'); }
         }
 
+        let globalCartItems = [];
+
         async function fetchCartData() {
             const user = JSON.parse(localStorage.getItem('userTokoGame'));
             const token = localStorage.getItem('tokenTokoGame');
@@ -239,11 +244,28 @@
                 const res = await fetch(`/api/cart/${user.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if(res.ok) {
                     const cartItems = await res.json();
+                    globalCartItems = cartItems;
                     let t = 0;
+                    const selectOpt = document.getElementById('use-credits-select');
                     cartItems.forEach(item => {
                         const harga = (item.is_cyber_drop && item.discount_price) ? item.discount_price : item.harga;
                         t += (harga * item.jumlah);
+                        
+                        // Populate select
+                        const opt = document.createElement('option');
+                        opt.value = item.product_id;
+                        opt.text = `Diskon 50% untuk ${item.nama_produk}`;
+                        selectOpt.appendChild(opt);
                     });
+                    
+                    if (maxCredits >= 100) {
+                        document.getElementById('credits-selector-container').classList.remove('hidden');
+                        document.getElementById('credits-not-enough').classList.add('hidden');
+                    } else {
+                        document.getElementById('credits-selector-container').classList.add('hidden');
+                        document.getElementById('credits-not-enough').classList.remove('hidden');
+                    }
+
                     totalAwal = t;
                     hitungUlangTotal();
                 }
@@ -288,11 +310,13 @@
             }
 
             // Apply Credits
-            const useCredits = document.getElementById('use-credits-checkbox').checked;
-            if(useCredits) {
-                let maxCreditDiscount = t * 0.5;
-                let creditsToUse = Math.floor(Math.min(maxCredits, maxCreditDiscount));
-                t = t - creditsToUse;
+            const selectedProductId = document.getElementById('use-credits-select')?.value;
+            if (selectedProductId && maxCredits >= 100) {
+                const targetItem = globalCartItems.find(i => i.product_id == selectedProductId);
+                if (targetItem) {
+                    const hargaSatuan = (targetItem.is_cyber_drop && targetItem.discount_price) ? targetItem.discount_price : targetItem.harga;
+                    t = t - (hargaSatuan * 0.5);
+                }
             }
             
             t = Math.floor(t);
@@ -359,7 +383,11 @@
             formData.append('metode_pengiriman', shippingData.metode_pengiriman);
             formData.append('catatan', shippingData.catatan);
             if(appliedPromoCode) formData.append('decryption_key', appliedPromoCode);
-            formData.append('use_credits', document.getElementById('use-credits-checkbox').checked);
+            
+            const selectedProductId = document.getElementById('use-credits-select')?.value;
+            if(selectedProductId && maxCredits >= 100) {
+                formData.append('use_credits_on_item', selectedProductId);
+            }
 
             // D. Animasi Tombol
             btnKirim.innerHTML = '<div class="relative flex items-center justify-center gap-3 px-12 py-5 bg-primary text-black font-space text-xl font-bold rounded opacity-70"><span>MENGIRIM...</span><span class="material-symbols-outlined animate-spin">refresh</span></div>';

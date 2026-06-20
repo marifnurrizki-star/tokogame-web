@@ -104,7 +104,7 @@ app.get('/api/products', async (req, res) => {
 // 2. JALUR CHECKOUT SUPER MAXIMAL
 app.post('/api/checkout', verifyToken, upload.single('bukti_transfer'), async (req, res) => {
     try {
-        const { alamat, metode_bayar, catatan, no_hp, metode_pengiriman, decryption_key, use_credits } = req.body;
+        const { alamat, metode_bayar, catatan, no_hp, metode_pengiriman, decryption_key, use_credits_on_item } = req.body;
         const buktiPath = req.file ? req.file.path : null;
 
         const userIdInt = parseInt(req.user.id);
@@ -121,9 +121,20 @@ app.post('/api/checkout', verifyToken, upload.single('bukti_transfer'), async (r
         }
 
         let total_harga = 0;
+        let pointsEarned = 0;
+
         cartItems.forEach(item => {
             const hargaItem = (item.is_cyber_drop && item.discount_price) ? item.discount_price : item.harga;
             total_harga += (hargaItem * item.jumlah);
+            
+            // Hitung Poin yang Didapat
+            if (hargaItem >= 1000000) {
+                pointsEarned += 5 * item.jumlah;
+            } else if (hargaItem >= 500000) {
+                pointsEarned += 3 * item.jumlah;
+            } else {
+                pointsEarned += 1 * item.jumlah;
+            }
         });
 
         if (decryption_key) {
@@ -133,17 +144,22 @@ app.post('/api/checkout', verifyToken, upload.single('bukti_transfer'), async (r
             }
         }
 
-        let creditsToUse = 0;
-        if (use_credits === 'true' || use_credits === true) {
+        let pointsToDeduct = 0;
+        if (use_credits_on_item) {
             const userRes = await pool.query('SELECT neo_credits FROM users WHERE id = $1', [userIdInt]);
-            if (userRes.rows.length > 0) {
-                let availableCredits = userRes.rows[0].neo_credits;
-                let maxCreditDiscount = total_harga * 0.5;
-                creditsToUse = Math.floor(Math.min(availableCredits, maxCreditDiscount));
-                total_harga = total_harga - creditsToUse;
+            const availableCredits = userRes.rows.length > 0 ? userRes.rows[0].neo_credits : 0;
+            if (availableCredits >= 100) {
+                const targetItem = cartItems.find(i => i.product_id == use_credits_on_item);
+                if (targetItem) {
+                    const hargaSatuan = (targetItem.is_cyber_drop && targetItem.discount_price) ? targetItem.discount_price : targetItem.harga;
+                    // Diskon 50% untuk 1 unit game yang dipilih (dihitung setelah promo kalau ada, biar ga rugi, 
+                    // tapi amannya 50% dari harga original satuan)
+                    total_harga -= (hargaSatuan * 0.5);
+                    pointsToDeduct = 100;
+                }
             }
         }
-        total_harga = Math.floor(total_harga);
+        total_harga = Math.floor(Math.max(0, total_harga));
         let finalAlamat = alamat || '';
         if (metode_pengiriman === 'Ambil Langsung') {
             finalAlamat = 'Pesanan ambil langsung di toko';
@@ -164,8 +180,7 @@ app.post('/api/checkout', verifyToken, upload.single('bukti_transfer'), async (r
 
         await pool.query('DELETE FROM cart WHERE user_id = $1', [userIdInt]);
 
-        const cashback = Math.floor(total_harga * 0.05);
-        const netCreditsChange = cashback - creditsToUse;
+        const netCreditsChange = pointsEarned - pointsToDeduct;
         await pool.query('UPDATE users SET neo_credits = neo_credits + $1 WHERE id = $2', [netCreditsChange, userIdInt]);
 
         res.json({ success: true, message: 'Checkout berhasil!', order_id: newOrderId });
@@ -336,7 +351,7 @@ app.get('/api/cart/:user_id', verifyToken, async (req, res) => {
     if (userId !== parseInt(req.user.id)) return res.status(403).json([]);
     try {
         const result = await pool.query(`
-            SELECT c.id as cart_id, c.jumlah, p.id as product_id, p.nama_produk, p.harga, p.gambar, p.kategori
+            SELECT c.id as cart_id, c.jumlah, p.id as product_id, p.nama_produk, p.harga, p.gambar, p.kategori, p.is_cyber_drop, p.discount_price
             FROM cart c
             JOIN products p ON c.product_id = p.id
             WHERE c.user_id = $1

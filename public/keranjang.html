@@ -196,22 +196,40 @@
             document.getElementById('btn-kosongkan').style.display = 'block';
 
             items.forEach(item => {
-                const hargaRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(item.harga);
-                const subtotalRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(item.harga * item.jumlah);
+                const isCyberDrop = item.is_cyber_drop && item.discount_price;
+                const hargaSatuan = isCyberDrop ? item.discount_price : item.harga;
+                const subtotal = hargaSatuan * item.jumlah;
+
+                const hargaRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(hargaSatuan);
+                const subtotalRp = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(subtotal);
                 
                 const linkGambar = item.gambar ? (item.gambar.startsWith('http') || item.gambar.startsWith('/') ? item.gambar : '/' + item.gambar) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop';
                 
+                let hargaHtml = `<p class="text-lg font-bold text-[#00d4ff]">${hargaRp}</p>`;
+                let badgeHtml = '';
+                let borderClass = 'border-gray-700';
+
+                if (isCyberDrop) {
+                    hargaHtml = `
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-xs text-gray-500 line-through">${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(item.harga)}</span>
+                            <span class="text-lg font-bold text-[#ecb1ff] drop-shadow-[0_0_8px_rgba(236,177,255,0.5)]">${hargaRp}</span>
+                        </div>`;
+                    badgeHtml = '<span class="ml-2 bg-[#ecb1ff] text-black text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-widest">Cyber Drop</span>';
+                    borderClass = 'border-[#ecb1ff]/50 shadow-[0_0_15px_rgba(236,177,255,0.1)]';
+                }
+
                 wadah.innerHTML += `
-                    <div class="cyber-item rounded-lg p-4 flex gap-4">
+                    <div class="cyber-item rounded-lg p-4 flex gap-4 ${borderClass}">
                         <img src="${linkGambar}" alt="${item.nama_produk}" class="w-24 h-24 object-cover rounded border border-gray-700" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=100&auto=format&fit=crop'">
                         
                         <div class="flex-grow">
-                            <h3 class="text-lg font-bold text-white mb-1">${item.nama_produk}</h3>
+                            <h3 class="text-lg font-bold text-white mb-1 flex items-center">${item.nama_produk} ${badgeHtml}</h3>
                             <p class="text-sm text-gray-400 mb-3">${item.kategori || 'GAME'}</p>
                             <div class="flex justify-between items-end">
                                 <div>
                                     <p class="text-xs text-gray-500">Harga Satuan</p>
-                                    <p class="text-lg font-bold text-[#00d4ff]">${hargaRp}</p>
+                                    ${hargaHtml}
                                 </div>
                                 <div class="flex items-center gap-2 bg-white/5 border border-gray-700 rounded px-3 py-1">
                                     <button onclick="ubahJumlah(${item.product_id}, -1)" class="text-gray-400 hover:text-white transition">
@@ -244,7 +262,8 @@
             let total = 0;
             let totalJumlah = 0;
             items.forEach(item => {
-                total += (item.harga * item.jumlah);
+                const hargaSatuan = (item.is_cyber_drop && item.discount_price) ? item.discount_price : item.harga;
+                total += (hargaSatuan * item.jumlah);
                 totalJumlah += item.jumlah;
             });
 

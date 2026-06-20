@@ -71,6 +71,7 @@
         <!-- Filter Platform -->
         <div class="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide" id="filter-container">
             <button onclick="filterPlatform('Semua')" class="filter-btn px-4 py-2 bg-[#00d4ff] text-black rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">Semua</button>
+            <button onclick="filterPlatform('Cyber Drop')" class="filter-btn px-4 py-2 bg-gray-800 text-[#ecb1ff] hover:bg-[#ecb1ff]/20 rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors shadow-[0_0_10px_rgba(236,177,255,0.1)]">Cyber Drop</button>
             <button onclick="filterPlatform('PS5')" class="filter-btn px-4 py-2 bg-gray-800 text-gray-400 hover:text-white rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">PS5</button>
             <button onclick="filterPlatform('PS4')" class="filter-btn px-4 py-2 bg-gray-800 text-gray-400 hover:text-white rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">PS4</button>
             <button onclick="filterPlatform('Xbox')" class="filter-btn px-4 py-2 bg-gray-800 text-gray-400 hover:text-white rounded-full font-bold text-sm tracking-wider flex-shrink-0 transition-colors">Xbox</button>
@@ -290,7 +291,14 @@
             const keyword = document.getElementById('searchInput').value.toLowerCase();
             filteredProducts = allProducts.filter(p => {
                 const matchKeyword = p.nama_produk.toLowerCase().includes(keyword);
-                const matchPlatform = currentPlatform === 'Semua' || (p.kategori && p.kategori.includes(currentPlatform));
+                let matchPlatform = false;
+                if (currentPlatform === 'Semua') {
+                    matchPlatform = true;
+                } else if (currentPlatform === 'Cyber Drop') {
+                    matchPlatform = p.is_cyber_drop === true;
+                } else {
+                    matchPlatform = p.kategori && p.kategori.includes(currentPlatform);
+                }
                 return matchKeyword && matchPlatform;
             });
             currentPage = 1;
