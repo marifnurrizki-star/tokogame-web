@@ -111,8 +111,8 @@
                         <span class="text-xs text-on-surface-variant mt-1">Saldo Anda: <span id="payment-neo-credits" class="text-[#00d4ff] font-bold">0</span></span>
                     </div>
                     <div id="credits-selector-container" class="hidden">
-                        <select id="use-credits-select" class="bg-surface-container-high border border-outline-variant text-white text-xs p-2 rounded focus:border-[#00d4ff] outline-none" onchange="hitungUlangTotal()">
-                            <option value="">-- Jangan Gunakan Poin --</option>
+                        <select id="use-credits-select" class="bg-[#201f20] border border-outline-variant text-white text-xs p-2 rounded focus:border-[#00d4ff] outline-none" onchange="hitungUlangTotal()">
+                            <option value="" class="bg-[#201f20] text-white">-- Jangan Gunakan Poin --</option>
                         </select>
                         <p class="text-[9px] text-[#00d4ff] mt-1 text-right">Tukar 100 Poin = Diskon 50%</p>
                     </div>
@@ -255,6 +255,7 @@
                         const opt = document.createElement('option');
                         opt.value = item.product_id;
                         opt.text = `Diskon 50% untuk ${item.nama_produk}`;
+                        opt.className = "bg-[#201f20] text-white";
                         selectOpt.appendChild(opt);
                     });
                     
