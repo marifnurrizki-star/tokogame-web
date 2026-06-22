@@ -199,7 +199,11 @@
                     window.location.replace('/admin.html');
                     return; 
                 }
-                document.getElementById('btn-login').classList.add('hidden');
+                const btnLogin = document.getElementById('btn-login');
+                if (btnLogin) {
+                    btnLogin.classList.add('hidden');
+                    btnLogin.classList.remove('md:block');
+                }
                 document.getElementById('profile-dropdown-container').classList.remove('hidden');
                 document.getElementById('user-greeting').classList.remove('hidden');
                 document.getElementById('user-name-display').innerText = user.nama;
