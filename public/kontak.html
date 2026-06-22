@@ -63,7 +63,11 @@
                     class="text-[#00d4ff] border-b-2 border-[#00d4ff] pb-1 transition-all duration-300">KONTAK</a>
             </div>
 
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4 md:gap-6">
+                <!-- Hamburger Menu for Mobile -->
+                <button class="md:hidden text-gray-400 hover:text-[#00d4ff] transition relative" onclick="toggleMobileMenu()" title="Menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
                 <button class="text-gray-400 hover:text-[#00d4ff] transition relative" onclick="cekRiwayat()"
                     title="Riwayat Pesanan">
                     <span class="material-symbols-outlined">receipt_long</span>
@@ -77,18 +81,30 @@
                     <span class="material-symbols-outlined">shopping_cart</span>
                 </button>
                 <button id="btn-login"
-                    class="px-4 py-2 bg-[#00d4ff]/10 text-[#00d4ff] border border-[#00d4ff]/50 rounded hover:bg-[#00d4ff] hover:text-black transition-colors text-sm font-bold tracking-wider"
+                    class="hidden md:block px-4 py-2 bg-[#00d4ff]/10 text-[#00d4ff] border border-[#00d4ff]/50 rounded hover:bg-[#00d4ff] hover:text-black transition-colors text-sm font-bold tracking-wider"
                     onclick="bukaLogin()">LOGIN</button>
                 <button id="btn-setting" class="hidden text-gray-400 hover:text-[#00d4ff] transition relative"
                     onclick="window.location.href='/setting.html'" title="Pengaturan Akun">
                     <span class="material-symbols-outlined">manage_accounts</span>
                 </button>
                 <button id="btn-logout"
-                    class="hidden px-4 py-2 border border-red-500/50 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors text-sm font-bold tracking-wider"
+                    class="hidden md:block hidden px-4 py-2 border border-red-500/50 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors text-sm font-bold tracking-wider"
                     onclick="logoutUser()">LOGOUT</button>
             </div>
         </div>
     </nav>
+
+    <!-- MOBILE MENU -->
+    <div id="mobile-menu" class="fixed inset-0 bg-[#0a0a0b]/95 backdrop-blur-md z-[60] flex-col items-center justify-center gap-8 text-lg font-bold tracking-widest font-mono hidden opacity-0 transition-opacity duration-300">
+        <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 text-gray-400 hover:text-[#00d4ff] transition">
+            <span class="material-symbols-outlined text-4xl">close</span>
+        </button>
+        <a href="/index.html#filter-container" onclick="toggleMobileMenu()" class="text-gray-400 hover:text-[#00d4ff] transition-all duration-300">KATALOG</a>
+        <a href="/tentang.html" onclick="toggleMobileMenu()" class="text-gray-400 hover:text-[#00d4ff] transition-all duration-300">TENTANG KAMI</a>
+        <a href="/kontak.html" onclick="toggleMobileMenu()" class="text-gray-400 hover:text-[#00d4ff] transition-all duration-300">KONTAK</a>
+        <button id="btn-login-mobile" class="px-6 py-2 bg-[#00d4ff]/10 text-[#00d4ff] border border-[#00d4ff]/50 rounded hover:bg-[#00d4ff] hover:text-black transition-colors text-sm font-bold tracking-wider mt-4" onclick="bukaLogin()">LOGIN</button>
+        <button id="btn-logout-mobile" class="px-6 py-2 border border-red-500/50 text-red-500 rounded hover:bg-red-500 hover:text-white transition-colors text-sm font-bold tracking-wider mt-4 hidden" onclick="logoutUser()">LOGOUT</button>
+    </div>
 
     <main class="flex-grow w-full max-w-[1280px] mx-auto px-6 py-16">
         <div class="text-center mb-16">
@@ -169,9 +185,15 @@
                 const user = JSON.parse(userData);
                 document.getElementById('btn-login').classList.add('hidden');
                 document.getElementById('btn-logout').classList.remove('hidden');
+                document.getElementById('btn-logout').classList.add('md:block');
                 document.getElementById('btn-setting').classList.remove('hidden');
                 document.getElementById('user-greeting').classList.remove('hidden');
                 document.getElementById('user-name-display').innerText = user.nama;
+                
+                const btnLoginMobile = document.getElementById('btn-login-mobile');
+                if(btnLoginMobile) btnLoginMobile.classList.add('hidden');
+                const btnLogoutMobile = document.getElementById('btn-logout-mobile');
+                if(btnLogoutMobile) btnLogoutMobile.classList.remove('hidden');
             }
         });
         function logoutUser() {
@@ -190,6 +212,24 @@
         function lihatWishlist() {
             const userData = localStorage.getItem('userTokoGame');
             if (!userData) { bukaLogin(); } else { window.location.href = '/index.html'; }
+        }
+
+        // --- FUNGSI MOBILE MENU ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+                setTimeout(() => { menu.classList.remove('opacity-0'); }, 10);
+                document.body.style.overflow = 'hidden';
+            } else {
+                menu.classList.add('opacity-0');
+                setTimeout(() => { 
+                    menu.classList.add('hidden'); 
+                    menu.classList.remove('flex');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
         }
     </script>
 </body>
