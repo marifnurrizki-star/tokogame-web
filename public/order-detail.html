@@ -88,6 +88,13 @@
 <span class="font-label-md text-primary-container uppercase tracking-widest">Loading...</span>
 </div>
 </header>
+<div id="discount-warning" class="hidden mb-6 p-4 border border-[#ecb1ff]/50 bg-[#ecb1ff]/10 rounded-lg flex items-start gap-3 shadow-[0_0_15px_rgba(236,177,255,0.15)]">
+    <span class="material-symbols-outlined text-[#ecb1ff]">security</span>
+    <div>
+        <h4 class="font-bold text-[#ecb1ff] uppercase tracking-wider text-sm">Pesanan Menggunakan Diskon / Poin</h4>
+        <p class="text-sm text-on-surface-variant mt-1">Sistem mendeteksi adanya pengurangan harga sebesar <span id="discount-amount" class="text-white font-bold"></span> dari total normal. Harap perhatikan dan pastikan nominal transfer pembeli sesuai dengan tagihan akhir ini.</p>
+    </div>
+</div>
 <div class="grid grid-cols-12 gap-6">
 <!-- Left Column: Order Details -->
 <div class="col-span-12 lg:col-span-7 space-y-6">
@@ -241,7 +248,9 @@
 
                 const listEl = document.getElementById('order-items-list');
                 listEl.innerHTML = '';
+                let subtotal = 0;
                 orderItems.forEach(item => {
+                    subtotal += (item.jumlah * item.harga_satuan);
                     const img = item.gambar ? (item.gambar.startsWith('http') || item.gambar.startsWith('/') ? item.gambar : '/' + item.gambar) : '';
                     listEl.innerHTML += `
                         <div class="flex justify-between items-center py-2 border-b border-outline-variant">
@@ -260,6 +269,18 @@
                 });
                 
                 document.getElementById('order-total').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(orderInfo.total_harga);
+
+                // Cek Diskon (Pemberitahuan Penipuan)
+                if (orderInfo.total_harga < subtotal) {
+                    const discountWarning = document.getElementById('discount-warning');
+                    const discountAmount = document.getElementById('discount-amount');
+                    const selisih = subtotal - orderInfo.total_harga;
+                    
+                    if (discountWarning && discountAmount) {
+                        discountWarning.classList.remove('hidden');
+                        discountAmount.innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(selisih);
+                    }
+                }
 
                 // Bukti Transfer
                 const proofImg = document.getElementById('proof-img');

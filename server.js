@@ -208,7 +208,7 @@ app.get('/api/reports/sales', verifyToken, isAdmin, async (req, res) => {
             SELECT o.id, o.total_harga, o.status, o.created_at, u.nama as pembeli 
             FROM orders o
             JOIN users u ON o.user_id = u.id
-            WHERE o.status != 'Dibatalkan' AND o.status != 'Ditolak'
+            WHERE 1=1
         `;
         let params = [];
         

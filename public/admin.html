@@ -542,14 +542,18 @@
                     <p class="text-center text-sm mb-4" id="print-date-range">Periode: Semua Waktu</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                     <div class="bg-surface-container border border-outline-variant rounded-xl p-6">
                         <p class="text-on-surface-variant font-label-md mb-1">Total Pendapatan</p>
                         <h3 id="report-total-revenue" class="text-3xl font-bold text-primary">Rp 0</h3>
                     </div>
                     <div class="bg-surface-container border border-outline-variant rounded-xl p-6">
-                        <p class="text-on-surface-variant font-label-md mb-1">Pesanan Sukses</p>
-                        <h3 id="report-total-orders" class="text-3xl font-bold text-white">0</h3>
+                        <p class="text-on-surface-variant font-label-md mb-1">Pesanan Selesai</p>
+                        <h3 id="report-total-selesai" class="text-3xl font-bold text-green-400">0</h3>
+                    </div>
+                    <div class="bg-surface-container border border-outline-variant rounded-xl p-6">
+                        <p class="text-on-surface-variant font-label-md mb-1">Pesanan Batal/Tolak</p>
+                        <h3 id="report-total-batal" class="text-3xl font-bold text-error">0</h3>
                     </div>
                     <div class="bg-surface-container border border-outline-variant rounded-xl p-6">
                         <p class="text-on-surface-variant font-label-md mb-1">Rata-rata Transaksi</p>
@@ -785,9 +789,19 @@
                 let totalPendapatan = 0;
                 let pendingCount = 0;
                 const statusSelesai = ['selesai', 'dikirim'];
+                const now = new Date();
+
                 orders.forEach(o => {
                     const st = o.status.toLowerCase();
-                    if (statusSelesai.some(s => st.includes(s))) totalPendapatan += o.total_harga;
+                    if (statusSelesai.some(s => st.includes(s))) {
+                        // Reset pendapatan setiap bulan
+                        if (o.created_at) {
+                            const orderDate = new Date(o.created_at);
+                            if (orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear()) {
+                                totalPendapatan += o.total_harga;
+                            }
+                        }
+                    }
                     if (st.includes('menunggu') || st.includes('pending')) pendingCount++;
                 });
 
@@ -811,15 +825,20 @@
                 // --- DASHBOARD (STOCK RADAR) ---
                 const radar = document.getElementById('stock-radar');
                 radar.innerHTML = '';
-                const outOfStock = products.filter(p => p.stok <= 0);
+                const outOfStock = products.filter(p => p.stok <= 10);
                 if(outOfStock.length === 0) {
-                    radar.innerHTML = '<p class="text-on-surface-variant text-sm p-4 bg-surface rounded border border-outline-variant/50">Semua stok aman bosku.</p>';
+                    radar.innerHTML = '<p class="text-on-surface-variant text-sm p-4 bg-surface rounded border border-outline-variant/50">Semua stok aman bosku (di atas 10).</p>';
                 } else {
                     outOfStock.forEach(p => {
+                        const isHabis = p.stok <= 0;
+                        const bgClass = isHabis ? 'bg-error-container/20 border-error/30' : 'bg-yellow-500/20 border-yellow-500/30';
+                        const textClass = isHabis ? 'text-error' : 'text-yellow-400';
+                        const statusText = isHabis ? 'Stok Habis (0 unit)' : `Stok Menipis (${p.stok} unit)`;
+                        
                         radar.innerHTML += `
-                        <div class="p-3 bg-error-container/20 border border-error/30 rounded-lg">
-                            <p class="text-error font-bold">${p.nama_produk}</p>
-                            <p class="text-xs text-error/70">Stok Habis (0 unit)</p>
+                        <div class="p-3 ${bgClass} border rounded-lg">
+                            <p class="${textClass} font-bold">${p.nama_produk}</p>
+                            <p class="text-xs ${textClass}/70">${statusText}</p>
                         </div>`;
                     });
                 }
@@ -1542,21 +1561,37 @@
                 }
 
                 let totalRevenue = 0;
-                let totalOrders = data.length;
+                let totalSelesai = 0;
+                let totalBatal = 0;
                 
                 tbody.innerHTML = '';
                 data.forEach(o => {
-                    totalRevenue += parseFloat(o.total_harga);
+                    const st = o.status.toLowerCase();
+                    const isSelesai = st.includes('selesai') || st.includes('dikirim');
+                    const isBatal = st.includes('dibatalkan') || st.includes('ditolak');
+
+                    if (isSelesai) {
+                        totalRevenue += parseFloat(o.total_harga);
+                        totalSelesai++;
+                    }
+                    if (isBatal) {
+                        totalBatal++;
+                    }
                     
                     const dateObj = new Date(o.created_at);
                     const dateStr = isNaN(dateObj) ? '-' : dateObj.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' });
                     
+                    // Pewarnaan status yang sama seperti di recent orders
+                    let statusColor = 'border-outline-variant text-on-surface-variant';
+                    if (isSelesai) statusColor = 'border-primary text-primary';
+                    if (isBatal) statusColor = 'border-error text-error';
+
                     tbody.innerHTML += `
                         <tr class="hover:bg-surface transition-colors">
                             <td class="p-4 font-bold text-white border print:border-gray-400 print:text-black">ORD-${o.id}</td>
                             <td class="p-4 text-on-surface-variant border print:border-gray-400 print:text-black">${dateStr}</td>
                             <td class="p-4 text-on-surface-variant border print:border-gray-400 print:text-black">${o.pembeli || 'User'}</td>
-                            <td class="p-4 border print:border-gray-400"><span class="px-2 py-1 text-xs border rounded border-outline-variant text-on-surface-variant uppercase print:text-black">${o.status}</span></td>
+                            <td class="p-4 border print:border-gray-400"><span class="px-2 py-1 text-xs border rounded ${statusColor} uppercase print:text-black">${o.status}</span></td>
                             <td class="p-4 text-right font-bold text-white border print:border-gray-400 print:text-black">${new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(o.total_harga)}</td>
                         </tr>
                     `;
@@ -1564,10 +1599,11 @@
                 
                 if(data.length === 0) tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-on-surface-variant">Tidak ada data untuk periode ini.</td></tr>';
                 
-                const avgOrder = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+                const avgOrder = totalSelesai > 0 ? totalRevenue / totalSelesai : 0;
                 
                 document.getElementById('report-total-revenue').innerText = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(totalRevenue);
-                document.getElementById('report-total-orders').innerText = totalOrders;
+                document.getElementById('report-total-selesai').innerText = totalSelesai;
+                document.getElementById('report-total-batal').innerText = totalBatal;
                 document.getElementById('report-avg-order').innerText = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(avgOrder);
 
             } catch(err) {
